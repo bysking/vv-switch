@@ -1,0 +1,80 @@
+[
+  {
+    "id": "f0a63ecb-6046-4467-9a3a-84e44ba44ee7",
+    "name": "DeepSeek-chat",
+    "baseUrl": "https://api.deepseek.com",
+    "apiKey": "sk-your-api-key-here",
+    "model": "deepseek-v4-flash",
+    "protocolType": "chat",
+    "activeForClaude": false,
+    "activeForCodex": false,
+    "createdAt": "2026-06-05T02:37:10.182Z",
+    "updatedAt": "2026-06-05T02:47:43.461Z",
+    "activeForOpenai": false
+  },
+    {
+    "id": "0727b565-4ab7-4637-bcbd-4e1aea4936c9",
+    "name": "DeepSeek-anthropic",
+    "baseUrl": "https://api.deepseek.com/anthropic",
+    "apiKey": "sk-your-api-key-here",
+    "model": "deepseek-v4-flash",
+    "protocolType": "anthropic",
+    "activeForClaude": false,
+    "activeForCodex": false,
+    "createdAt": "2026-06-05T02:47:16.964Z",
+    "updatedAt": "2026-06-05T02:47:34.363Z",
+    "activeForOpenai": false
+  },
+  {
+    "id": "7e529afb-5abc-47c9-b567-4cd73e6330d5",
+    "name": "百炼-chat",
+    "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+    "apiKey": "sk-your-api-key-here",
+    "model": "qwen3.7-plus",
+    "protocolType": "chat",
+    "activeForClaude": true,
+    "activeForCodex": true,
+    "createdAt": "2026-06-05T02:37:58.375Z",
+    "updatedAt": "2026-06-25T11:05:26.320Z",
+    "activeForOpenai": false
+  },
+  {
+    "id": "5322bc47-fd70-4b35-9eb0-920e7ef25663",
+    "name": "百炼-anthropic",
+    "baseUrl": "https://coding.dashscope.aliyuncs.com/apps/anthropic",
+    "apiKey": "sk-your-api-key-here",
+    "model": "qwen3.7-plus",
+    "protocolType": "anthropic",
+    "activeForClaude": false,
+    "activeForCodex": false,
+    "createdAt": "2026-06-05T02:49:07.899Z",
+    "updatedAt": "2026-06-25T11:05:39.327Z",
+    "activeForOpenai": false
+  },
+  {
+    "id": "84e8b0c1-bce2-4573-aaa3-921afde20a9f",
+    "name": "火山-GLM5.2-anthropic",
+    "baseUrl": "https://ark.cn-beijing.volces.com/api/coding",
+    "apiKey": "ark-your-api-key-here",
+    "model": "GLM-5.2",
+    "protocolType": "anthropic",
+    "activeForClaude": false,
+    "activeForCodex": false,
+    "createdAt": "2026-06-12T13:31:00.547Z",
+    "updatedAt": "2026-07-01T01:46:17.862Z",
+    "activeForOpenai": false
+  },
+  {
+    "id": "62e68b6d-6dc6-499c-a351-d4b59fd93d1a",
+    "name": "火山-GLM-5.2-chat",
+    "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
+    "apiKey": "ark-your-api-key-here",
+    "model": "GLM-5.2",
+    "protocolType": "chat",
+    "activeForClaude": false,
+    "activeForCodex": false,
+    "createdAt": "2026-06-12T13:33:24.597Z",
+    "updatedAt": "2026-07-01T01:46:26.048Z",
+    "activeForOpenai": false
+  }
+]

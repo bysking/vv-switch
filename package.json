@@ -1,0 +1,50 @@
+{
+  "name": "vv-switch",
+  "version": "0.0.1",
+  "description": "js实现的cladue和codex的大模型转发代理工具，支持供应商配置，支持可视化日志查看",
+  "main": "src/server.ts",
+  "type": "module",
+  "bin": {
+    "vv-switch": "./dist/cli.cjs"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "start": "tsx bin/cli.ts",
+    "startlog": "tsx bin/cli.ts --logs",
+    "dev": "tsx watch bin/cli.ts --logs",
+    "test": "tsx --test --test-force-exit \"test/*.test.ts\" \"test/adapters/*.test.ts\" \"test/providers/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "test:integration": "tsx --test --test-force-exit \"test/integration/*.test.ts\""
+  },
+  "keywords": [
+    "openai",
+    "proxy",
+    "chat-completions",
+    "responses-api",
+    "codex",
+    "cli",
+    "vv-switch"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "dependencies": {
+    "commander": "^15.0.0",
+    "express": "^4.21.0",
+    "smol-toml": "^1.3.0",
+    "uuid": "^10.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.0.1",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

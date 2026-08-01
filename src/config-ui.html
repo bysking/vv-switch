@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vv-switch 配置</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ════════════════ 主题变量 ════════════════ */
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .2s,color .2s}
+
+/* 深色（默认） */
+body.dark{background:#1a1a2e;color:#e0e0e0}
+body.dark .nav{background:#16213e;border-bottom-color:#0f3460}
+body.dark .nav-tab{color:#888}
+body.dark .nav-tab:hover{color:#ccc}
+body.dark .nav-right{color:#666}
+body.dark .nav-right .proxy{color:#aaa}
+body.dark .status-bar{background:#0f0f23;border-bottom-color:#1a1a3e}
+body.dark .status-bar .dot{background:#555}
+body.dark .provider-sidebar{background:#16213e;border-right-color:#0f3460}
+body.dark .provider-item:hover{background:#1a1a3e}
+body.dark .provider-item.selected{background:#1e3a26}
+body.dark .provider-item .meta{color:#888}
+body.dark .provider-item .badge{background:#0f3460;color:#aaa}
+body.dark .provider-item .badge.anthropic{background:#1e3a5f;color:#5dade2}
+body.dark .provider-item .badge.chat{background:#2d1b4e;color:#bb86fc}
+body.dark .provider-item .badge.ollama{background:#1a2e1a;color:#66bb6a}
+body.dark .provider-item .badge.responses{background:#3a2a12;color:#ffb74d}
+body.dark .provider-item .active-dots .dot{background:#555}
+body.dark .delete-btn{color:#666}
+body.dark .copy-btn{color:#666}
+body.dark .provider-form-area{background:#1a1a2e}
+body.dark .provider-form-card h2{color:#ccc}
+body.dark .form-group label{color:#888}
+body.dark .form-group input,body.dark .form-group select{background:#16213e;border-color:#0f3460;color:#e0e0e0}
+body.dark .form-group input::placeholder{color:#555}
+body.dark .form-group select option{background:#16213e;color:#e0e0e0}
+body.dark .btn-test{background:#0f3460;color:#5dade2}
+body.dark .btn-test:hover{background:#1a4a80}
+body.dark .test-result.success{background:#1a3a2a;border-color:#2e7d32;color:#81c784}
+body.dark .test-result.error{background:#3a1a1a;border-color:#c62828;color:#ef9a9a}
+body.dark .apply-layout{background:#1a1a2e}
+body.dark .apply-container h2{color:#ccc}
+body.dark .apply-container .desc{color:#888}
+body.dark .apply-card{background:#16213e;border-color:#0f3460}
+body.dark .apply-card-header .status{color:#666}
+body.dark .apply-card label{color:#888}
+body.dark .apply-card select{background:#1a1a2e;border-color:#0f3460;color:#e0e0e0}
+body.dark .apply-card select option{background:#1a1a2e;color:#e0e0e0}
+body.dark .apply-card .model-hint{color:#555}
+body.dark .btn-restore{background:#333;color:#ccc}
+body.dark .btn-restore:hover{background:#444}
+body.dark .empty-form{color:#555}
+body.dark .empty-list{color:#555}
+body.dark .toast.success{background:#1b5e20;color:#a5d6a7;border-color:#2e7d32}
+body.dark .toast.error{background:#b71c1c;color:#ef9a9a;border-color:#c62828}
+body.dark .toast.info{background:#0d47a1;color:#90caf9;border-color:#1565c0}
+
+/* 浅色 */
+body.light{background:#f5f7fa;color:#333}
+body.light .nav{background:#fff;border-bottom-color:#e0e4e8}
+body.light .nav-tab{color:#888}
+body.light .nav-tab:hover{color:#555}
+body.light .nav-right{color:#999}
+body.light .nav-right .proxy{color:#666}
+body.light .status-bar{background:#fff;border-bottom-color:#e0e4e8}
+body.light .status-bar .dot{background:#ccc}
+body.light .provider-sidebar{background:#fff;border-right-color:#e0e4e8}
+body.light .provider-item:hover{background:#f0f2f5}
+body.light .provider-item.selected{background:#e8f5e9;border:1px solid #2e7d32}
+body.light .provider-item .meta{color:#888}
+body.light .provider-item .badge{background:#e8f4fd;color:#1976d2}
+body.light .provider-item .badge.anthropic{background:#e3f2fd;color:#1565c0}
+body.light .provider-item .badge.chat{background:#f3e5f5;color:#7b1fa2}
+body.light .provider-item .badge.ollama{background:#e8f5e9;color:#2e7d32}
+body.light .provider-item .badge.responses{background:#fff3e0;color:#ef6c00}
+body.light .provider-item .active-dots .dot{background:#ccc}
+body.light .delete-btn{color:#999}
+body.light .copy-btn{color:#999}
+body.light .provider-form-area{background:#f5f7fa}
+body.light .provider-form-card h2{color:#333}
+body.light .form-group label{color:#555}
+body.light .form-group input,body.light .form-group select{background:#fff;border-color:#d0d5dc;color:#333}
+body.light .form-group input:focus,body.light .form-group select:focus{box-shadow:0 0 0 2px rgba(233,69,96,.15)}
+body.light .form-group input::placeholder{color:#bbb}
+body.light .form-group select option{background:#fff;color:#333}
+body.light .btn-test{background:#e8f4fd;color:#1976d2}
+body.light .btn-test:hover{background:#d0e8fa}
+body.light .test-result.success{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}
+body.light .test-result.error{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+body.light .apply-layout{background:#f5f7fa}
+body.light .apply-container h2{color:#333}
+body.light .apply-container .desc{color:#666}
+body.light .apply-card{background:#fff;border-color:#e0e4e8;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+body.light .apply-card-header .status{color:#999}
+body.light .apply-card label{color:#555}
+body.light .apply-card select{background:#fff;border-color:#d0d5dc;color:#333}
+body.light .apply-card select:focus{box-shadow:0 0 0 2px rgba(233,69,96,.15)}
+body.light .apply-card select option{background:#fff;color:#333}
+body.light .apply-card .model-hint{color:#999}
+body.light .btn-restore{background:#f0f2f5;color:#555}
+body.light .btn-restore:hover{background:#e0e4e8}
+body.light .empty-form{color:#999}
+body.light .empty-list{color:#999}
+body.light .toast.success{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7}
+body.light .toast.error{background:#ffebee;color:#c62828;border-color:#ef9a9a}
+body.light .toast.info{background:#e3f2fd;color:#1565c0;border-color:#90caf9}
+
+/* ── 日志 Tab 样式 ──────────────────────────────────────── */
+.logs-layout{flex:1;overflow:hidden}
+.logs-layout iframe{width:100%;height:100%;border:none}
+.logs-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:14px;color:#888}
+.logs-empty .icon{font-size:48px;margin-bottom:16px}
+
+/* ── 备份文件 Tab 样式 ──────────────────────────────── */
+.backups-layout{flex:1;display:flex;gap:24px;padding:24px;overflow-y:auto}
+.backup-panel{flex:1;display:flex;flex-direction:column;border:1px solid;border-radius:12px;overflow:hidden;min-height:0}
+.backup-header{padding:16px 20px;border-bottom:1px solid}
+.backup-title{display:flex;align-items:center;gap:10px}
+.backup-title .backup-icon{font-size:24px}
+.backup-title h3{font-size:16px;font-weight:600}
+.backup-meta{font-size:11px;margin-top:4px}
+.backup-content{flex:1;overflow:auto;padding:16px 20px;font-family:'SF Mono',Monaco,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;white-space:pre;min-height:200px;border:1px solid;border-radius:8px;margin:16px 16px 8px}
+.backup-content .line{display:flex}
+.backup-content .line-number{min-width:40px;text-align:right;padding-right:16px;user-select:none;opacity:.5}
+.backup-actions{padding:0 20px 16px}
+.btn-delete{padding:8px 16px;border:1px solid;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+.btn-delete:hover{opacity:.8}
+.backup-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+
+/* ── 提示词规则 Tab 样式 ──────────────────────────────── */
+.rule-form-card{max-width:680px}
+.form-group textarea{width:100%;min-height:88px;padding:10px 14px;border:1px solid;border-radius:8px;font-size:14px;outline:none;resize:vertical;font-family:'SF Mono',Monaco,Menlo,Consolas,monospace;transition:border-color .2s}
+.form-group textarea:focus{border-color:#e94560}
+.form-group .hint{font-size:11px;margin-top:6px;line-height:1.5}
+.checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.checkbox-row input{width:auto}
+.checkbox-row-rule { display: flex;align-items:center;gap: 8px;}
+.checkbox-row-rule input { width: 100px; margin: 0; }
+.preview-box{margin-top:8px;padding:12px;border:1px solid;border-radius:8px;font-family:'SF Mono',Monaco,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;min-height:44px}
+
+body.dark .backup-panel{background:#16213e;border-color:#0f3460}
+body.dark .backup-header{border-bottom-color:#0f3460}
+body.dark .backup-content{background:#0f0f23;border-color:#0f3460;color:#e0e0e0}
+body.dark .backup-content .line-number{color:#555}
+body.dark .btn-delete{background:#3a1a1a;color:#ef9a9a;border-color:#c62828}
+body.dark .btn-delete:hover{background:#4a2a2a}
+body.dark .backup-empty{color:#555}
+body.dark .backup-meta{color:#888}
+body.dark .form-group textarea{background:#16213e;border-color:#0f3460;color:#e0e0e0}
+body.dark .form-group textarea::placeholder{color:#555}
+body.dark .form-group .hint{color:#666}
+body.dark .preview-box{background:#0f0f23;border-color:#0f3460;color:#ccc}
+
+body.light .backup-panel{background:#fff;border-color:#e0e4e8;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+body.light .backup-header{border-bottom-color:#e0e4e8}
+body.light .backup-content{background:#f8f9fa;border-color:#e0e4e8;color:#333}
+body.light .backup-content .line-number{color:#999}
+body.light .btn-delete{background:#fff;border-color:#ef9a9a;color:#c62828}
+body.light .btn-delete:hover{background:#ffebee}
+body.light .backup-empty{color:#999}
+body.light .backup-meta{color:#666}
+body.light .form-group textarea{background:#fff;border-color:#d0d5dc;color:#333}
+body.light .form-group textarea:focus{box-shadow:0 0 0 2px rgba(233,69,96,.15)}
+body.light .form-group textarea::placeholder{color:#bbb}
+body.light .form-group .hint{color:#999}
+body.light .preview-box{background:#f8f9fa;border-color:#e0e4e8;color:#333}
+
+/* ── 通用样式 ───────────────────────────────────────── */
+.nav{display:flex;border-bottom:1px solid;padding:0 20px;flex-shrink:0}
+.nav-tab{padding:14px 24px;cursor:pointer;font-size:14px;border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+.nav-tab:hover{color:#ccc}
+.nav-tab.active{color:#e94560;border-bottom-color:#e94560}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:12px}
+
+/* 主题切换按钮 */
+.theme-btn{background:none;border:1px solid #444;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:14px;line-height:1;transition:all .2s;display:flex;align-items:center;gap:4px}
+body.dark .theme-btn{color:#aaa;border-color:#333}
+body.light .theme-btn{color:#666;border-color:#ccc}
+.theme-btn:hover{transform:scale(1.05)}
+body.dark .theme-btn:hover{border-color:#555}
+body.light .theme-btn:hover{border-color:#999}
+
+.status-bar{padding:10px 24px;border-bottom:1px solid;display:flex;align-items:center;gap:16px;font-size:12px;flex-shrink:0}
+.status-bar .item{display:flex;align-items:center;gap:6px}
+.status-bar .dot{width:6px;height:6px;border-radius:50%}
+.status-bar .dot.claude{background:#4caf50;box-shadow:0 0 4px #4caf50}
+.status-bar .dot.codex{background:#2196f3;box-shadow:0 0 4px #2196f3}
+.status-bar .dot.openai{background:#9c27b0;box-shadow:0 0 4px #9c27b0}
+
+.tab-content{flex:1;overflow:hidden;display:none}
+.tab-content.active{display:flex}
+
+.providers-layout{flex:1;display:flex;overflow:hidden}
+.provider-sidebar{width:30%;border-right:1px solid;display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-header{padding:16px 16px 0}
+.add-btn{margin:12px 16px;padding:10px;background:#5dade2;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background .2s}
+.add-btn:hover{background:#5dade2}
+.provider-list{flex:1;overflow-y:auto;padding:8px}
+.provider-item{padding:12px;margin:4px 0;border-radius:8px;cursor:pointer;transition:background .15s;display:flex;justify-content:space-between;align-items:center}
+.provider-item .info{flex:1;min-width:0}
+.provider-item .name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.provider-item .meta{font-size:11px;margin-top:2px}
+.provider-item .badge{font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px;flex-shrink:0}
+.provider-item .active-dots{display:flex;gap:3px;margin-left:8px;flex-shrink:0}
+.provider-item .active-dots .dot{width:6px;height:6px;border-radius:50%}
+.provider-item .active-dots .dot.claude{background:#4caf50}
+.provider-item .active-dots .dot.codex{background:#2196f3}
+.provider-item .active-dots .dot.openai{background:#9c27b0}
+.delete-btn{background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px;font-size:12px;transition:color .15s}
+.delete-btn:hover{color:#e94560}
+.copy-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;font-size:12px;transition:color .15s;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.copy-btn:hover{color:#5dade2}
+.provider-item .drag-handle{cursor:grab;user-select:none;touch-action:none;flex-shrink:0;margin-right:6px;padding:4px 2px;opacity:.5;font-size:18px;line-height:1;transition:opacity .15s}
+.provider-item:hover .drag-handle{opacity:.95}
+.provider-item.dragging{opacity:.35;cursor:grabbing}
+.sort-hint{padding:8px 16px;font-size:11px;text-align:center;user-select:none;opacity:.55}
+
+.provider-form-area{flex:1;overflow-y:auto;padding:24px}
+.provider-form-card{max-width:520px}
+.provider-form-card h2{font-size:16px;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;margin-bottom:6px;font-weight:500}
+.form-group input,.form-group select{width:100%;padding:10px 14px;border:1px solid;border-radius:8px;font-size:14px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:#e94560}
+.form-group select{cursor:pointer}
+.model-combo{display:flex;gap:8px}
+.model-combo select{flex:1;min-width:0}
+.model-add-btn{flex-shrink:0;width:42px;background:#2e7d32;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:18px;font-weight:600;line-height:1;transition:background .2s}
+.model-add-btn:hover{background:#1b5e20}
+.model-add-row{display:flex;gap:8px;margin-top:8px}
+.model-add-row input{flex:1;min-width:0;padding:9px 12px;border:1px solid;border-radius:8px;font-size:13px;outline:none;transition:border-color .2s}
+.model-add-row input:focus{border-color:#2e7d32}
+.btn-mini{padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s}
+.btn-mini.btn-primary{background:#2e7d32;color:#fff}
+.btn-mini.btn-primary:hover{background:#1b5e20}
+body.dark .model-add-row input{background:#16213e;border-color:#0f3460;color:#e0e0e0}
+body.light .model-add-row input{background:#fff;border-color:#d0d5dc;color:#333}
+.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;user-select:none;opacity:.6;transition:opacity .15s}
+.toggle-pw:hover{opacity:1}
+.btn-row{display:flex;gap:12px;margin-top:24px}
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.test-result{margin-top:16px;padding:12px;border-radius:8px;font-size:13px;display:none;border:1px solid}
+.test-result.success{display:block}
+.test-result.error{display:block}
+
+.apply-layout{flex:1;overflow-y:auto;padding:32px}
+.apply-container{max-width:800px;margin:0 auto}
+.apply-container h2{font-size:20px;margin-bottom:8px}
+.apply-container .desc{font-size:13px;margin-bottom:32px}
+.apply-cards{display:flex;gap:24px}
+.apply-card{flex:1;border:1px solid;border-radius:12px;padding:24px}
+.apply-card-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.apply-card-header .icon{font-size:28px}
+.apply-card-header h3{font-size:16px;font-weight:600}
+.apply-card-header .status{font-size:11px;margin-top:2px}
+.apply-card-header .status.active{color:#4caf50}
+.apply-card label{display:block;font-size:12px;margin-bottom:6px;font-weight:500}
+.apply-card select{width:100%;padding:10px 14px;border:1px solid;border-radius:8px;font-size:14px;outline:none;margin-bottom:4px;cursor:pointer}
+.apply-card select:focus{border-color:#e94560}
+.apply-card .model-hint{font-size:11px;margin-bottom:16px;min-height:16px}
+.apply-card .btn-row{justify-content:flex-end}
+.btn-apply{background:#5dade2;color:#fff}
+.btn-apply:hover{background:#5dade2}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.toast-container{position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;animation:slideIn .3s ease;max-width:360px;border:1px solid}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+#emptyState,#emptyRuleState{height:100%;display:flex;align-items:center;justify-content:center}
+.empty-form{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:14px}
+.empty-form .icon{font-size:48px;margin-bottom:16px}
+.empty-list{padding:20px;text-align:center;font-size:13px}
+
+/* ── 模型能力配置区 ────────────────────────────────────── */
+.capabilities-section{margin-top:20px;padding-top:16px;border-top:1px solid}
+body.dark .capabilities-section{border-top-color:#0f3460}
+body.light .capabilities-section{border-top-color:#e0e4e8}
+.capabilities-section h3{font-size:13px;margin-bottom:12px;font-weight:600}
+.capability-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;flex-wrap:wrap}
+.capability-row input[type="checkbox"]{width:auto;margin:0;cursor:pointer}
+.capability-row input[type="number"]{width:120px;padding:6px 10px;border:1px solid;border-radius:6px;font-size:13px;outline:none}
+body.dark .capability-row input[type="number"]{background:#16213e;border-color:#0f3460;color:#e0e0e0}
+body.light .capability-row input[type="number"]{background:#fff;border-color:#d0d5dc;color:#333}
+.capability-row label{font-size:13px;cursor:pointer;margin:0}
+.capability-hint{font-size:11px;color:#888;margin-left:4px}
+
+/* ── 帮助说明 Tab 样式 ──────────────────────────────── */
+.help-layout{flex:1;overflow-y:auto;padding:32px}
+.help-container{max-width:800px;margin:0 auto}
+.help-section{margin-bottom:36px}
+.help-section h2{font-size:18px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid}
+.help-section p{font-size:14px;line-height:1.8;margin-bottom:12px}
+.help-section code{font-size:13px;padding:2px 6px;border-radius:4px;font-family:'SF Mono',Monaco,Menlo,Consolas,monospace}
+.help-steps{padding-left:20px}
+.help-steps li{font-size:14px;line-height:1.8;margin-bottom:8px}
+.help-steps li strong{font-weight:600}
+.help-list{padding-left:20px}
+.help-list li{font-size:14px;line-height:1.8;margin-bottom:6px}
+.help-list li strong{font-weight:600}
+.help-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:4px}
+.help-table th,.help-table td{padding:10px 14px;text-align:left;border:1px solid;font-size:13px}
+.help-table th{font-weight:600}
+.help-table code{font-size:12px;padding:1px 5px;border-radius:3px;font-family:'SF Mono',Monaco,Menlo,Consolas,monospace}
+.help-code{font-family:'SF Mono',Monaco,Menlo,Consolas,monospace;font-size:13px;line-height:1.7;padding:16px 20px;border-radius:8px;white-space:pre;overflow-x:auto}
+.help-license{padding:20px;border-radius:12px;border:1px solid}
+.help-license p{font-size:14px;margin-bottom:8px}
+.help-license ul{padding-left:20px;margin-bottom:12px}
+.help-license li{font-size:14px;line-height:1.8;margin-bottom:4px}
+.help-license-contact{font-size:13px;margin-top:12px}
+.help-license-contact a{color:#5dade2;text-decoration:none}
+.help-license-contact a:hover{text-decoration:underline}
+.help-license-disclaimer{font-size:12px;margin-top:8px}
+
+body.dark .help-section h2{border-bottom-color:#0f3460}
+body.dark .help-section code{background:#16213e;color:#5dade2}
+body.dark .help-table th{background:#16213e;border-color:#0f3460;color:#ccc}
+body.dark .help-table td{border-color:#0f3460;color:#e0e0e0}
+body.dark .help-code{background:#0f0f23;color:#e0e0e0;border:1px solid #0f3460}
+body.dark .help-license{background:#16213e;border-color:#0f3460}
+body.dark .help-license-contact{color:#888}
+
+body.light .help-section h2{border-bottom-color:#e0e4e8}
+body.light .help-section code{background:#f0f2f5;color:#1976d2}
+body.light .help-table th{background:#f8f9fa;border-color:#e0e4e8;color:#555}
+body.light .help-table td{border-color:#e0e4e8;color:#333}
+body.light .help-code{background:#f8f9fa;color:#333;border:1px solid #e0e4e8}
+body.light .help-license{background:#fff;border-color:#e0e4e8}
+body.light .help-license-contact{color:#999}
+
+</style>
+</head>
+<body class="dark">
+
+<!-- ── 顶部 Tab 导航 ────────────────────────────────── -->
+<div class="nav">
+  <div class="nav-tab active" data-tab="providers" onclick="switchTab('providers')">供应商管理</div>
+  <div class="nav-tab" data-tab="apply" onclick="switchTab('apply')">应用配置</div>
+  <div class="nav-tab" data-tab="rules" onclick="switchTab('rules')">提示词改写</div>
+  <div class="nav-tab" data-tab="backups" onclick="switchTab('backups')">备份查看</div>
+  <div class="nav-tab" data-tab="help" onclick="switchTab('help')">帮助说明</div>
+  <div class="nav-tab" data-tab="logs" onclick="switchTab('logs')" id="logsTab" style="display:none">日志</div>
+  <div class="nav-right">
+    <span class="proxy" id="author"></span>
+    <button class="theme-btn" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙 深色</button>
+  </div>
+</div>
+
+<!-- ── 状态条 ─────────────────────────────────────────── -->
+<div class="status-bar" id="statusBar">
+  <span id="statusItems"></span>
+</div>
+
+<!-- ═══════════ Tab 1: 供应商管理 ═══════════════ -->
+<div class="tab-content active" id="tab-providers">
+  <div class="providers-layout">
+    <!-- 左侧列表 -->
+    <div class="provider-sidebar">
+      <button class="add-btn" onclick="showAddForm()">+ 添加供应商</button>
+      <div class="provider-list" id="providerList"></div>
+      <div class="sort-hint">按住 ⠿ 拖拽可调整供应商顺序</div>
+    </div>
+    <!-- 右侧表单 -->
+    <div class="provider-form-area">
+      <div id="emptyState">
+        <div class="empty-form">
+          <div class="icon">📡</div>
+          <div>点击左侧「添加供应商」开始配置</div>
+        </div>
+      </div>
+      <div id="providerFormCard" class="provider-form-card" style="display:none">
+        <h2 id="formTitle">供应商详情</h2>
+        <input type="hidden" id="formId">
+        <div class="form-group">
+          <label for="formName">供应商名称</label>
+          <input type="text" id="formName" placeholder="例如：DeepSeek、百炼、智谱" required>
+        </div>
+        <div class="form-group">
+          <label for="formBaseUrl">API 地址 (UPSTREAM_BASE_URL)</label>
+          <input type="url" id="formBaseUrl" placeholder="https://api.deepseek.com/v1" required>
+        </div>
+        <div class="form-group">
+          <label for="formApiKey">API 密钥 (UPSTREAM_API_KEY)</label>
+          <div style="position:relative">
+            <input type="password" id="formApiKey" placeholder="sk-..." required>
+            <span class="toggle-pw" onclick="toggleApiKey()" title="查看/隐藏密钥">👁</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="formModel">模型名称</label>
+          <div class="model-combo">
+            <select id="formModel" required></select>
+            <button type="button" class="model-add-btn" onclick="toggleAddModelRow()" title="添加自定义模型">＋</button>
+          </div>
+          <div class="model-add-row" id="modelAddRow" style="display:none">
+            <input type="text" id="formModelInput" placeholder="输入新模型名,回车确认">
+            <button type="button" class="btn-mini btn-primary" onclick="confirmAddModel()">添加</button>
+            <button type="button" class="btn-mini" onclick="toggleAddModelRow()">取消</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="formProtocolType">上游协议类型</label>
+          <select id="formProtocolType">
+            <option value="chat">chat — OpenAI Chat Completions 协议</option>
+            <option value="responses">responses — OpenAI Responses API 协议</option>
+            <option value="anthropic">anthropic — Anthropic Messages 协议</option>
+            <option value="ollama">ollama — Ollama /api/chat 协议</option>
+          </select>
+        </div>
+        <div class="capabilities-section">
+          <h3>模型能力配置</h3>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapThinking" checked>
+            <label for="formCapThinking">支持思考 (Thinking)</label>
+          </div>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapVision">
+            <label for="formCapVision">支持视觉 (Vision/Images)</label>
+          </div>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapAudio">
+            <label for="formCapAudio">支持音频 (Audio)</label>
+          </div>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapVideo">
+            <label for="formCapVideo">支持视频 (Video)</label>
+          </div>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapFunctionCalling" checked>
+            <label for="formCapFunctionCalling">支持工具调用 (Function Calling)</label>
+          </div>
+          <div class="capability-row">
+            <input type="checkbox" id="formCapPromptCache">
+            <label for="formCapPromptCache">支持提示词缓存 (Prompt Cache)</label>
+          </div>
+          <div class="capability-row">
+            <label for="formCapContextWindow" style="min-width:80px">上下文窗口:</label>
+            <input type="number" id="formCapContextWindow" placeholder="1048576" min="0" step="1000" value="1048576">
+            <span class="capability-hint">tokens</span>
+          </div>
+          <div class="capability-row">
+            <label for="formCapMaxOutput" style="min-width:80px">最大输出:</label>
+            <input type="number" id="formCapMaxOutput" placeholder="0(不限制)" min="0" step="1000" value="0">
+            <span class="capability-hint">tokens, 0=不限制</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-test" id="testBtn" onclick="testConnection()">测试连接</button>
+        </div>
+        <div class="test-result" id="testResult"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ Tab 2: 应用配置 ═══════════════════ -->
+<div class="tab-content" id="tab-apply">
+  <div class="apply-layout">
+    <div class="apply-container">
+      <h2>应用到 Claude / Codex / OpenAI 端点</h2>
+      <p class="desc">为 Claude Code、OpenAI Codex 和本地 OpenAI 端点（/v1/chat/completions，如 VS Code Copilot）分别选择要使用的供应商模型。Claude / Codex 配置会在 Ctrl+C 停止服务时自动还原；OpenAI 端点无需写外部配置。</p>
+      <div class="apply-cards">
+        <!-- Claude 卡片 -->
+        <div class="apply-card">
+          <div class="apply-card-header">
+            <div class="icon">🟢</div>
+            <div>
+              <h3>Claude Code</h3>
+              <div class="status" id="claudeStatus">未配置</div>
+            </div>
+          </div>
+          <label for="selectClaude">选择供应商（仅 anthropic 协议）</label>
+          <select id="selectClaude">
+            <option value="">—— 请选择 ——</option>
+          </select>
+          <div class="model-hint" id="claudeHint"></div>
+          <div class="btn-row">
+            <button class="btn btn-restore" onclick="restoreTarget('claude')">还原</button>
+            <button class="btn btn-apply" onclick="applyTarget('claude')">应用</button>
+          </div>
+        </div>
+        <!-- Codex 卡片 -->
+        <div class="apply-card">
+          <div class="apply-card-header">
+            <div class="icon">🔵</div>
+            <div>
+              <h3>OpenAI Codex</h3>
+              <div class="status" id="codexStatus">未配置</div>
+            </div>
+          </div>
+          <label for="selectCodex">选择供应商（仅 chat / anthropic 协议）</label>
+          <select id="selectCodex">
+            <option value="">—— 请选择 ——</option>
+          </select>
+          <div class="model-hint" id="codexHint"></div>
+          <div class="btn-row">
+            <button class="btn btn-restore" onclick="restoreTarget('codex')">还原</button>
+            <button class="btn btn-apply" onclick="applyTarget('codex')">应用</button>
+          </div>
+        </div>
+        <!-- OpenAI 端点卡片 -->
+        <div class="apply-card">
+          <div class="apply-card-header">
+            <div class="icon">🟣</div>
+            <div>
+              <h3>OpenAI 端点</h3>
+              <div class="status" id="openaiStatus">未配置</div>
+            </div>
+          </div>
+          <label for="selectOpenai">选择供应商（chat / anthropic 协议）</label>
+          <select id="selectOpenai">
+            <option value="">—— 请选择 ——</option>
+          </select>
+          <div class="model-hint" id="openaiHint"></div>
+          <div class="btn-row">
+            <button class="btn btn-restore" onclick="restoreTarget('openai')">还原</button>
+            <button class="btn btn-apply" onclick="applyTarget('openai')">应用</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ Tab 3: 提示词规则 ═══════════════════ -->
+<div class="tab-content" id="tab-rules">
+  <div class="providers-layout">
+    <div class="provider-sidebar">
+      <button class="add-btn" onclick="showAddRuleForm()">+ 添加规则</button>
+      <div class="provider-list" id="ruleList"></div>
+    </div>
+    <div class="provider-form-area">
+      <div id="emptyRuleState">
+        <div class="empty-form">
+          <div class="icon">✍️</div>
+          <div>点击左侧「添加规则」配置提示词改写</div>
+        </div>
+      </div>
+      <div id="ruleFormCard" class="provider-form-card rule-form-card" style="display:none">
+        <h2 id="ruleFormTitle">提示词规则</h2>
+        <input type="hidden" id="ruleId">
+        <div class="form-group">
+          <label for="ruleName">规则名称</label>
+          <input type="text" id="ruleName" placeholder="例如：移除敏感前缀" required>
+        </div>
+        <div class="form-group">
+          <div class="checkbox-row-rule"><label>启用规则</label><div><input type="checkbox" id="ruleEnabled"></div> </div>
+        </div>
+        <div class="form-group">
+          <label for="ruleTarget">作用范围</label>
+          <select id="ruleTarget">
+            <option value="all">全部提示词</option>
+            <option value="system">系统 / developer 提示词</option>
+            <option value="user">用户提示词</option>
+            <option value="assistant">助手历史消息</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="rulePattern">正则表达式</label>
+          <textarea id="rulePattern" placeholder="例如：不要回答.*" required></textarea>
+          <div class="hint">匹配到的内容会被替换；留空替换字符串即可删除匹配内容。</div>
+        </div>
+        <div class="form-group">
+          <label for="ruleReplacement">替换为</label>
+          <textarea id="ruleReplacement" placeholder="留空表示替换为空字符串"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="ruleFlags">正则 flags</label>
+          <input type="text" id="ruleFlags" placeholder="g" value="g">
+          <div class="hint">默认 g。支持 JavaScript RegExp flags，例如 g、gi、gm。</div>
+        </div>
+        <div class="form-group">
+          <label for="rulePreviewText">预览文本</label>
+          <textarea id="rulePreviewText" placeholder="输入一段目标提示词，查看替换效果"></textarea>
+          <div class="preview-box" id="rulePreviewResult">预览结果会显示在这里</div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-test" onclick="previewRule()">预览</button>
+          <button type="button" class="btn btn-apply" onclick="saveRule()">保存规则</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ Tab 4: 备份文件 ═══════════════════ -->
+<div class="tab-content" id="tab-backups">
+  <div class="backups-layout">
+    <div class="backup-panel">
+      <div class="backup-header">
+        <div class="backup-title">
+          <span class="backup-icon">🟢</span>
+          <h3>Claude 备份</h3>
+        </div>
+        <div class="backup-meta" id="claudeBackupMeta">加载中...</div>
+      </div>
+      <div class="backup-content" id="claudeBackupContent">
+        <div class="backup-empty">加载中...</div>
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-delete" id="deleteClaudeBackup" onclick="deleteBackup('claude')" style="display:none">删除备份</button>
+      </div>
+    </div>
+    <div class="backup-panel">
+      <div class="backup-header">
+        <div class="backup-title">
+          <span class="backup-icon">🔵</span>
+          <h3>Codex 备份</h3>
+        </div>
+        <div class="backup-meta" id="codexBackupMeta">加载中...</div>
+      </div>
+      <div class="backup-content" id="codexBackupContent">
+        <div class="backup-empty">加载中...</div>
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-delete" id="deleteCodexBackup" onclick="deleteBackup('codex')" style="display:none">删除备份</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ Tab 5: 日志 ═══════════════════ -->
+<div class="tab-content" id="tab-logs">
+  <div class="logs-layout">
+    <iframe id="logsFrame" src="" sandbox="allow-scripts allow-same-origin allow-popups" style="flex:1;border:none;width:100%;height:100%"></iframe>
+    <div class="logs-empty" id="logsEmpty" style="display:none">
+      <div class="icon">📋</div>
+      <div>暂无日志数据，请先产生一些 API 请求</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ Tab 6: 帮助说明 ═══════════════ -->
+<div class="tab-content" id="tab-help">
+  <div class="help-layout">
+    <div class="help-container">
+
+      <section class="help-section">
+        <h2>📖 什么是 vv-switch？</h2>
+        <p>vv-switch 是一个轻量级 LLM API 协议转换代理，运行在本地（默认 <code>http://localhost:4321</code>），作为 Claude Code、OpenAI Codex 以及任意 OpenAI Chat Completions 客户端（如 VS Code Copilot 自定义端点）与各类 LLM 提供商之间的中间层。</p>
+        <p>通过协议转换，你可以使用 DeepSeek、阿里百炼（DashScope）、智谱等任何支持 OpenAI Chat Completions、Anthropic Messages 或原生 Responses API 的提供商来驱动 Claude Code、Codex 和 VS Code Copilot 等客户端。</p>
+      </section>
+
+      <section class="help-section">
+        <h2>🔌 支持的客户端协议</h2>
+        <table class="help-table">
+          <tr><th>客户端</th><th>入口协议</th><th>转换目标</th></tr>
+          <tr><td><strong>Claude Code</strong></td><td><code>/v1/messages</code> (Anthropic Messages)</td><td>Chat Completions / Anthropic 兼容端点</td></tr>
+          <tr><td><strong>OpenAI Codex</strong></td><td><code>/v1/responses</code> (Responses API)</td><td>Chat Completions / 原生 Responses API</td></tr>
+          <tr><td><strong>OpenAI 端点</strong> (VS Code Copilot 等)</td><td><code>/v1/chat/completions</code></td><td>Chat Completions / Anthropic 兼容端点</td></tr>
+        </table>
+      </section>
+
+      <section class="help-section">
+        <h2>⚙️ 快速使用</h2>
+        <ol class="help-steps">
+          <li><strong>添加供应商</strong> — 在「供应商管理」Tab 中添加 LLM 提供商（名称、API 地址、API Key、模型、协议类型）</li>
+          <li><strong>测试连接</strong> — 填写完成后点击「测试连接」验证配置是否正确</li>
+          <li><strong>应用配置</strong> — 切换到「应用配置」Tab，为 Claude Code / Codex / OpenAI 端点分别选择要使用的供应商</li>
+          <li><strong>开始使用</strong> — 正常使用 <code>claude</code> 或 <code>codex</code> 命令即可；VS Code Copilot 等指向 <code>http://localhost:4321/v1</code></li>
+          <li><strong>停止服务</strong> — 按 <code>Ctrl+C</code> 停止，自动还原原始配置</li>
+        </ol>
+      </section>
+
+      <section class="help-section">
+        <h2>🧩 支持的协议类型</h2>
+        <table class="help-table">
+          <tr><th>协议类型</th><th>上游端点</th><th>认证方式</th><th>适用场景</th></tr>
+          <tr><td><code>chat</code></td><td><code>/chat/completions</code></td><td><code>Authorization: Bearer</code></td><td>DeepSeek、DashScope /v1、OpenAI 等</td></tr>
+          <tr><td><code>anthropic</code></td><td><code>/v1/messages</code></td><td><code>x-api-key</code></td><td>DashScope /apps/anthropic、智谱等</td></tr>
+          <tr><td><code>responses</code></td><td><code>/v1/responses</code></td><td><code>Authorization: Bearer</code></td><td>原生 Responses API 兼容提供商</td></tr>
+          <tr><td><code>ollama</code></td><td><code>/api/chat</code></td><td>无需 / 可选 Bearer</td><td>本地 Ollama 服务</td></tr>
+        </table>
+      </section>
+
+      <section class="help-section">
+        <h2>🛠️ 主要功能</h2>
+        <ul class="help-list">
+          <li><strong>协议转换</strong> — Responsess API ↔ Chat Completions、Anthropic Messages ↔ Chat Completions，以及 Anthropic 直传、Responses 直传</li>
+          <li><strong>流式支持（SSE）</strong> — 全链路 SSE 流式支持，双向协议转换</li>
+          <li><strong>工具调用（Tool Calling）</strong> — 多轮工具对话完整支持，各协议间正确映射</li>
+          <li><strong>能力探测</strong> — 自动检测上游 LLM 提供商的能力，并据此决定是否启用降级方案</li>
+          <li><strong>中间件管道</strong> — 洋葱模型的请求处理：鉴权、日志、指标、重试、限流、能力检查</li>
+          <li><strong>Prompt Rules 规则管理</strong> — 通过正则规则动态修改请求中的消息内容</li>
+          <li><strong>供应商管理</strong> — 通过 Web UI 管理多个 LLM 提供商配置，独立设置 Claude / Codex / OpenAI 端点活跃供应商</li>
+          <li><strong>配置注入与自动还原</strong> — 应用配置时自动写入 Claude/Codex 配置，停止服务时自动还原</li>
+          <li><strong>日志与可视化</strong> — JSONL 格式日志，内置 HTML 日志查看器，支持会话列表、搜索过滤、JSON/Table 视图</li>
+          <li><strong>协议日志</strong> — 面向协议转换排查的四阶段链路日志（ingress → standard → upstream → egress）</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
+        <h2>💻 CLI 用法</h2>
+        <div class="help-code">npx vv-switch [options]
+
+选项:
+  -p, --port &lt;port&gt;        监听端口（默认 4321）
+  -h, --host &lt;host&gt;        监听地址（默认 localhost）
+  --debug                  开启调试日志
+  --logs                   开启日志记录与可视化
+  --logs-dir &lt;dir&gt;        自定义日志目录路径
+  --no-body                不捕获请求/响应体（只记摘要）
+  --protocol-log           开启协议转换链路日志
+  --protocol-log-dir &lt;dir&gt; 自定义协议日志目录（默认 ./log）</div>
+      </section>
+
+      <section class="help-section">
+        <h2>📄 版权与许可</h2>
+        <div class="help-license">
+          <p><strong>Copyright &copy; 2024 bysking</strong></p>
+          <p>本软件遵循以下许可条款：</p>
+          <ul>
+            <li>✅ <strong>个人使用</strong> — 个人非商业用途可以免费使用、复制和修改本软件</li>
+            <li>❌ <strong>商业使用</strong> — 任何企业、组织或个人若将本软件用于商业目的，<strong>必须获得作者的书面授权</strong></li>
+          </ul>
+          <p class="help-license-contact">商业授权请联系：<a href="mailto:bysking@qq.com">bysking@qq.com</a></p>
+          <p class="help-license-disclaimer">本软件按"原样"提供，不提供任何明示或暗示的保证。未经授权的商业使用将构成侵权行为。</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ── 状态 ──────────────────────────────────────────────
+let providers = [];
+let selectedId = null;
+let activeForClaude = null;
+let activeForCodex = null;
+let activeForOpenai = null;
+let promptRules = [];
+let selectedRuleId = null;
+
+const MODEL_OPTIONS_DEFAULT = ['deepseek-v4-flash', 'deepseek-v4-pro'];
+let currentModelOptions = [];
+
+const PROXY_HOST =  window.location.hostname;
+const PROXY_PORT = window.location.port || '4321';
+
+// ── 主题管理 ──────────────────────────────────────────
+let currentTheme = localStorage.getItem('vv-switch-theme') || 'dark';
+
+function applyTheme(theme) {
+  document.body.className = theme;
+  currentTheme = theme;
+  localStorage.setItem('vv-switch-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '🌙 深色' : '☀️ 浅色';
+}
+
+function toggleTheme() {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+}
+
+applyTheme(currentTheme);
+
+// ── Tab 切换 ─────────────────────────────────────────
+let logsLoaded = false;
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tab}`));
+  if (tab === 'backups') {
+    loadBackups();
+  }
+  if (tab === 'rules') {
+    loadPromptRules();
+  }
+  if (tab === 'logs') {
+    const iframe = document.getElementById('logsFrame');
+    iframe.src = '/logs';
+    logsLoaded = true;
+  }
+}
+
+// ── 初始化 ────────────────────────────────────────────
+async function init() {
+  document.getElementById('author').textContent = `个人免费使用，商业请获取授权`;
+  await loadProviders();
+  await loadPromptRules();
+}
+
+// ── 加载供应商列表 ─────────────────────────────────────
+async function loadProviders() {
+  try {
+    const res = await fetch('/api/providers');
+    const data = await res.json();
+    providers = data.providers || [];
+    activeForClaude = data.activeForClaude || null;
+    activeForCodex = data.activeForCodex || null;
+    activeForOpenai = data.activeForOpenai || null;
+    renderList();
+    updateStatusBar();
+    updateApplyTab();
+    if (data.logsEnabled) {
+      document.getElementById('logsTab').style.display = '';
+    }
+  } catch (e) {
+    toast('加载供应商列表失败', 'error');
+  }
+}
+
+// ═══════════ Tab 1: 供应商管理 ═══════════════
+
+// ── 渲染列表 ──────────────────────────────────────────
+function renderList() {
+  const el = document.getElementById('providerList');
+  if (providers.length === 0) {
+    el.innerHTML = '<div class="empty-list">暂无供应商</div>';
+    return;
+  }
+  el.innerHTML = providers.map(p => {
+    const isClaudeActive = activeForClaude && activeForClaude.id === p.id;
+    const isCodexActive = activeForCodex && activeForCodex.id === p.id;
+    const isOpenaiActive = activeForOpenai && activeForOpenai.id === p.id;
+    return `
+    <div class="provider-item ${p.id === selectedId ? 'selected' : ''}" data-id="${p.id}" onclick="selectProvider('${p.id}')">
+      <span class="drag-handle" title="拖拽排序">⠿</span>
+      <div class="info">
+        <div class="name">${esc(p.name)}</div>
+        <div class="meta">${esc(p.model)} · ${p.protocolType}</div>
+      </div>
+      <span class="badge ${p.protocolType}">${p.protocolType}</span>
+      <div class="active-dots">
+        <span class="dot ${isClaudeActive ? 'claude' : ''}" title="已应用到 Claude"></span>
+        <span class="dot ${isCodexActive ? 'codex' : ''}" title="已应用到 Codex"></span>
+        <span class="dot ${isOpenaiActive ? 'openai' : ''}" title="已应用到 OpenAI 端点"></span>
+      </div>
+      <button class="copy-btn" onclick="event.stopPropagation();duplicateProvider('${p.id}')" title="复制">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      </button>
+      <button class="delete-btn" onclick="event.stopPropagation();deleteProvider('${p.id}')" title="删除">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── 拖拽排序 ──────────────────────────────────────────
+// 事件委托绑定在列表容器上（列表由 renderList 整体重绘，委托无需重复绑定）。
+// 仅当按住手柄 ⠿ 时才启用 draggable，避免与「点击选中」「删除按钮」冲突。
+let dragId = null;
+
+(function initProviderDragSort() {
+  const listEl = document.getElementById('providerList');
+
+  listEl.addEventListener('mousedown', e => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    const item = handle.closest('.provider-item');
+    if (item) item.draggable = true;
+  });
+
+  listEl.addEventListener('dragstart', e => {
+    const item = e.target.closest('.provider-item');
+    if (!item || !item.draggable) return;
+    dragId = item.dataset.id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragId); // Firefox 需要 setData 才能拖动
+    requestAnimationFrame(() => item.classList.add('dragging'));
+  });
+
+  listEl.addEventListener('dragover', e => {
+    if (!dragId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const dragging = listEl.querySelector('.provider-item.dragging');
+    const target = e.target.closest('.provider-item');
+    if (!dragging || !target || target === dragging) return;
+    // 按目标项上/下半区决定插入位置，实时换位预览
+    const rect = target.getBoundingClientRect();
+    const before = e.clientY < rect.top + rect.height / 2;
+    listEl.insertBefore(dragging, before ? target : target.nextSibling);
+  });
+
+  listEl.addEventListener('dragend', async () => {
+    listEl.querySelectorAll('.provider-item').forEach(el => {
+      el.classList.remove('dragging');
+      el.draggable = false;
+    });
+    if (!dragId) return;
+    dragId = null;
+    await commitProviderOrder();
+  });
+
+  // 按住手柄但未真正拖动时，清除 draggable 标记
+  document.addEventListener('mouseup', () => {
+    if (!dragId) {
+      listEl.querySelectorAll('.provider-item[draggable="true"]').forEach(el => { el.draggable = false; });
+    }
+  });
+})();
+
+// ── 提交供应商新顺序 ──────────────────────────────────
+async function commitProviderOrder() {
+  const listEl = document.getElementById('providerList');
+  const ids = Array.from(listEl.querySelectorAll('.provider-item')).map(el => el.dataset.id);
+  if (ids.length === 0) return;
+  if (ids.join(',') === providers.map(p => p.id).join(',')) return; // 顺序未变，跳过持久化
+
+  // 先同步本地数组顺序（未知 id 容错：缺失项追加到末尾）
+  const byId = new Map(providers.map(p => [p.id, p]));
+  providers = ids.map(id => byId.get(id)).filter(Boolean)
+    .concat(providers.filter(p => !ids.includes(p.id)));
+  updateApplyTab();
+
+  try {
+    const res = await fetch('/api/providers/order', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+    const result = await res.json();
+    if (!result.success) {
+      toast(result.error || '排序保存失败', 'error');
+      await loadProviders();
+      return;
+    }
+    toast('排序已保存', 'success');
+  } catch (e) {
+    toast('排序保存失败: ' + e.message, 'error');
+    await loadProviders();
+  }
+}
+
+// ── 选择供应商 ─────────────────────────────────────────
+function selectProvider(id) {
+  selectedId = id;
+  const p = providers.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('providerFormCard').style.display = 'block';
+  document.getElementById('formTitle').textContent = '供应商详情';
+  document.getElementById('formId').value = p.id;
+  document.getElementById('formName').value = p.name;
+  document.getElementById('formBaseUrl').value = p.baseUrl;
+  document.getElementById('formApiKey').value = p.apiKey;
+  currentModelOptions = Array.isArray(p.modelOptions) && p.modelOptions.length ? [...p.modelOptions] : [...MODEL_OPTIONS_DEFAULT];
+  renderModelOptions(p.model);
+  document.getElementById('formProtocolType').value = p.protocolType;
+  const caps = p.modelCapabilities || {};
+  document.getElementById('formCapThinking').checked = caps.thinking !== false;
+  document.getElementById('formCapVision').checked = !!caps.vision;
+  document.getElementById('formCapAudio').checked = !!caps.audio;
+  document.getElementById('formCapVideo').checked = !!caps.video;
+  document.getElementById('formCapFunctionCalling').checked = caps.functionCalling !== false;
+  document.getElementById('formCapPromptCache').checked = !!caps.promptCache;
+  document.getElementById('formCapContextWindow').value = caps.contextWindow || '1048576';
+  document.getElementById('formCapMaxOutput').value = caps.maxOutputTokens || '0';
+  document.getElementById('testResult').className = 'test-result';
+  document.getElementById('testResult').style.display = 'none';
+  renderList();
+}
+
+// ── 显示添加表单 ───────────────────────────────────────
+function showAddForm() {
+  selectedId = null;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('providerFormCard').style.display = 'block';
+  document.getElementById('formTitle').textContent = '添加供应商';
+  document.getElementById('formId').value = '';
+  document.getElementById('formName').value = '';
+  document.getElementById('formBaseUrl').value = '';
+  document.getElementById('formApiKey').value = '';
+  currentModelOptions = [...MODEL_OPTIONS_DEFAULT];
+  renderModelOptions('');
+  document.getElementById('formProtocolType').value = 'anthropic';
+  document.getElementById('formCapThinking').checked = true;
+  document.getElementById('formCapVision').checked = false;
+  document.getElementById('formCapAudio').checked = false;
+  document.getElementById('formCapVideo').checked = false;
+  document.getElementById('formCapFunctionCalling').checked = true;
+  document.getElementById('formCapPromptCache').checked = false;
+  document.getElementById('formCapContextWindow').value = '1048576';
+  document.getElementById('formCapMaxOutput').value = '0';
+  document.getElementById('testResult').className = 'test-result';
+  document.getElementById('testResult').style.display = 'none';
+  document.getElementById('formName').focus();
+}
+
+// ── 模型下拉选项管理 ──────────────────────────────────
+// 每个供应商独立维护 modelOptions;新建时预置 MODEL_OPTIONS_DEFAULT。
+function renderModelOptions(selected) {
+  const sel = document.getElementById('formModel');
+  const opts = [...currentModelOptions];
+  const cur = selected != null ? selected : sel.value;
+  if (cur && !opts.includes(cur)) opts.unshift(cur); // 当前模型不在列表时临时补上,保证可见
+  sel.innerHTML = '';
+  for (const m of opts) {
+    const o = document.createElement('option');
+    o.value = m;
+    o.textContent = m;
+    sel.appendChild(o);
+  }
+  sel.value = opts.includes(cur) ? cur : (opts[0] || '');
+}
+
+function toggleAddModelRow() {
+  const row = document.getElementById('modelAddRow');
+  const showing = row.style.display !== 'none';
+  row.style.display = showing ? 'none' : 'flex';
+  const input = document.getElementById('formModelInput');
+  input.value = '';
+  if (!showing) input.focus();
+}
+
+async function confirmAddModel() {
+  const input = document.getElementById('formModelInput');
+  const name = input.value.trim();
+  if (!name) { toast('请输入模型名称', 'error'); input.focus(); return; }
+  if (currentModelOptions.includes(name)) {
+    renderModelOptions(name);
+    toggleAddModelRow();
+    toast('该模型已存在,已选中', 'info');
+    return;
+  }
+  currentModelOptions.push(name);
+  renderModelOptions(name);
+  toggleAddModelRow();
+  await saveProvider(); // 立即持久化 modelOptions
+}
+
+document.getElementById('formModelInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); confirmAddModel(); }
+  else if (e.key === 'Escape') { toggleAddModelRow(); }
+});
+
+// ── 保存供应商 ─────────────────────────────────────────
+async function saveProvider() {
+  const data = {
+    id: document.getElementById('formId').value || undefined,
+    name: document.getElementById('formName').value.trim(),
+    baseUrl: document.getElementById('formBaseUrl').value.trim(),
+    apiKey: document.getElementById('formApiKey').value.trim(),
+    model: document.getElementById('formModel').value.trim(),
+    modelOptions: currentModelOptions,
+    protocolType: document.getElementById('formProtocolType').value,
+    modelCapabilities: {
+      thinking: document.getElementById('formCapThinking').checked,
+      vision: document.getElementById('formCapVision').checked,
+      audio: document.getElementById('formCapAudio').checked,
+      video: document.getElementById('formCapVideo').checked,
+      functionCalling: document.getElementById('formCapFunctionCalling').checked,
+      promptCache: document.getElementById('formCapPromptCache').checked,
+      contextWindow: parseInt(document.getElementById('formCapContextWindow').value) || 1048576,
+      maxOutputTokens: parseInt(document.getElementById('formCapMaxOutput').value) || 0,
+    },
+  };
+
+  if (!data.name || !data.baseUrl || !data.apiKey || !data.model) {
+    toast('请填写所有必填字段', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/providers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!result.success) {
+      toast(result.error || '保存失败', 'error');
+      return;
+    }
+    toast(data.id ? '供应商已更新' : '供应商已添加', 'success');
+    await loadProviders();
+    selectProvider(result.provider.id);
+  } catch (e) {
+    toast('保存失败: ' + e.message, 'error');
+  }
+}
+
+let saveTimer = null;
+['formName','formBaseUrl','formApiKey','formModel','formProtocolType'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    if (saveTimer) clearTimeout(saveTimer);
+
+    // windows上这里会默认执行一次，但是组件还没渲染，可以用于跳过
+    if (document.getElementById('providerFormCard').style.display === 'none') {
+      return
+    }
+    saveTimer = setTimeout(saveProvider, 600);
+  });
+});
+
+// 能力配置的自动保存
+['formCapThinking','formCapVision','formCapAudio','formCapVideo','formCapFunctionCalling','formCapPromptCache'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    if (document.getElementById('providerFormCard').style.display === 'none') return;
+    saveTimer = setTimeout(saveProvider, 600);
+  });
+});
+['formCapContextWindow','formCapMaxOutput'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    if (document.getElementById('providerFormCard').style.display === 'none') return;
+    saveTimer = setTimeout(saveProvider, 600);
+  });
+});
+
+// ── 复制供应商 ─────────────────────────────────────────
+// 一键复制:基于已有供应商创建一个新副本(新 id),name 加后缀去重,
+// 清空活跃状态后立即落库,再选中新副本进入编辑,用户可继续修改(字段自动保存接管)。
+async function duplicateProvider(id) {
+  const src = providers.find(p => p.id === id);
+  if (!src) return;
+  const baseName = (src.name || '未命名').trim();
+  const taken = new Set(providers.map(p => p.name));
+  let copyName = `${baseName} (副本)`;
+  let n = 2;
+  while (taken.has(copyName)) {
+    copyName = `${baseName} (副本 ${n})`;
+    n++;
+  }
+  const data = {
+    name: copyName,
+    baseUrl: src.baseUrl || '',
+    apiKey: src.apiKey || '',
+    model: src.model || '',
+    modelOptions: Array.isArray(src.modelOptions) && src.modelOptions.length ? [...src.modelOptions] : [...MODEL_OPTIONS_DEFAULT],
+    protocolType: src.protocolType || 'anthropic',
+    modelCapabilities: JSON.parse(JSON.stringify(src.modelCapabilities || {})),
+  };
+  try {
+    const res = await fetch('/api/providers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '复制失败', 'error'); return; }
+    toast('已复制,可继续修改', 'success');
+    await loadProviders();
+    selectProvider(result.provider.id);
+  } catch (e) {
+    toast('复制失败: ' + e.message, 'error');
+  }
+}
+
+// ── 删除供应商 ─────────────────────────────────────────
+async function deleteProvider(id) {
+  if (!confirm('确定删除此供应商？')) return;
+  try {
+    const res = await fetch(`/api/providers/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '删除失败', 'error'); return; }
+    toast('供应商已删除', 'success');
+    selectedId = null;
+    document.getElementById('providerFormCard').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    await loadProviders();
+  } catch (e) {
+    toast('删除失败: ' + e.message, 'error');
+  }
+}
+
+// ── 测试连接 ──────────────────────────────────────────
+async function testConnection() {
+  const baseUrl = document.getElementById('formBaseUrl').value.trim();
+  const apiKey = document.getElementById('formApiKey').value.trim();
+  const model = document.getElementById('formModel').value.trim();
+  const protocolType = document.getElementById('formProtocolType').value;
+  if (!baseUrl || !apiKey) { toast('请先填写 API 地址和密钥', 'error'); return; }
+
+  const btn = document.getElementById('testBtn');
+  btn.disabled = true;
+  btn.textContent = '测试中...';
+
+  try {
+    const res = await fetch('/api/providers/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseUrl, apiKey, model, protocolType }),
+    });
+    const result = await res.json();
+    const el = document.getElementById('testResult');
+    if (result.success) {
+      el.className = 'test-result success';
+      el.textContent = `连接成功！${result.info || ''}`;
+      toast(`连接成功${result.info ? ' — ' + result.info : ''}`, 'success');
+    } else {
+      el.className = 'test-result error';
+      el.textContent = `连接失败: ${result.error || '未知错误'}`;
+      toast(`连接失败: ${result.error || '未知错误'}`, 'error');
+    }
+  } catch (e) {
+    const el = document.getElementById('testResult');
+    el.className = 'test-result error';
+    el.textContent = `请求失败: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '测试连接';
+  }
+}
+
+// ═══════════ Tab 2: 应用配置 ═══════════════════
+
+function updateApplyTab() {
+  const claudeOpts = providers.map(p => {
+    const disabled = p.protocolType === 'responses' ? ' disabled' : '';
+    const suffix = p.protocolType === 'responses' ? ' · 仅支持 Codex' : '';
+    return `<option value="${p.id}" data-model="${esc(p.model)}"${disabled}>${esc(p.name)} — ${esc(p.model)} (${p.protocolType}${suffix})</option>`;
+  }).join('');
+  const codexOpts = providers.map(p => `<option value="${p.id}" data-model="${esc(p.model)}">${esc(p.name)} — ${esc(p.model)} (${p.protocolType})</option>`).join('');
+  // OpenAI 端点走 chat/completions;chat 与 anthropic 协议均可(anthropic 会由代理转换),responses 不适用
+  const openaiOpts = providers.map(p => {
+    const disabled = p.protocolType === 'responses' ? ' disabled' : '';
+    const suffix = p.protocolType === 'responses' ? ' · 不支持 OpenAI 端点' : '';
+    return `<option value="${p.id}" data-model="${esc(p.model)}"${disabled}>${esc(p.name)} — ${esc(p.model)} (${p.protocolType}${suffix})</option>`;
+  }).join('');
+  document.getElementById('selectClaude').innerHTML = `<option value="">—— 请选择 ——</option>` + claudeOpts;
+  document.getElementById('selectCodex').innerHTML = `<option value="">—— 请选择 ——</option>` + codexOpts;
+  document.getElementById('selectOpenai').innerHTML = `<option value="">—— 请选择 ——</option>` + openaiOpts;
+
+  if (activeForClaude) document.getElementById('selectClaude').value = activeForClaude.id;
+  if (activeForCodex) document.getElementById('selectCodex').value = activeForCodex.id;
+  if (activeForOpenai) document.getElementById('selectOpenai').value = activeForOpenai.id;
+
+  const cs = document.getElementById('claudeStatus');
+  if (activeForClaude) {
+    cs.className = 'status active';
+    cs.textContent = `当前: ${activeForClaude.name} (${activeForClaude.model})`;
+  } else {
+    cs.className = 'status';
+    cs.textContent = '未配置';
+  }
+  const ds = document.getElementById('codexStatus');
+  if (activeForCodex) {
+    ds.className = 'status active';
+    ds.textContent = `当前: ${activeForCodex.name} (${activeForCodex.model})`;
+  } else {
+    ds.className = 'status';
+    ds.textContent = '未配置';
+  }
+  const os = document.getElementById('openaiStatus');
+  if (activeForOpenai) {
+    os.className = 'status active';
+    os.textContent = `当前: ${activeForOpenai.name} (${activeForOpenai.model})`;
+  } else {
+    os.className = 'status';
+    os.textContent = '未配置';
+  }
+
+  updateApplyHint('claude');
+  updateApplyHint('codex');
+  updateApplyHint('openai');
+}
+
+const APPLY_SELECT_IDS = { claude: 'selectClaude', codex: 'selectCodex', openai: 'selectOpenai' };
+const APPLY_HINT_IDS = { claude: 'claudeHint', codex: 'codexHint', openai: 'openaiHint' };
+const APPLY_TARGET_NAMES = { claude: 'Claude', codex: 'Codex', openai: 'OpenAI 端点' };
+
+function updateApplyHint(target) {
+  const selectEl = document.getElementById(APPLY_SELECT_IDS[target]);
+  const hintEl = document.getElementById(APPLY_HINT_IDS[target]);
+  const opt = selectEl.selectedOptions[0];
+  if (opt && opt.dataset.model) {
+    const desc = target === 'claude'
+      ? '自动填入所有 Claude 模型覆盖字段'
+      : target === 'codex'
+        ? '写入 Codex model_provider 配置'
+        : '本地 /v1/chat/completions 端点生效(如 VS Code)';
+    hintEl.textContent = `模型: ${opt.dataset.model} — ${desc}`;
+  } else {
+    hintEl.textContent = '';
+  }
+}
+
+document.getElementById('selectClaude').addEventListener('change', () => updateApplyHint('claude'));
+document.getElementById('selectCodex').addEventListener('change', () => updateApplyHint('codex'));
+document.getElementById('selectOpenai').addEventListener('change', () => updateApplyHint('openai'));
+
+// ── 应用到单个目标 ──────────────────────────────────────
+async function applyTarget(target) {
+  const selectEl = document.getElementById(APPLY_SELECT_IDS[target]);
+  const providerId = selectEl.value;
+  if (!providerId) { toast('请先选择供应商', 'error'); return; }
+
+  const targetName = APPLY_TARGET_NAMES[target] || target;
+
+  try {
+    const res = await fetch('/api/providers/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ providerId, targets: [target], port: PROXY_PORT }),
+    });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '应用失败', 'error'); return; }
+    toast(`配置已应用到 ${targetName}`, 'success');
+    await loadProviders();
+  } catch (e) {
+    toast('应用失败: ' + e.message, 'error');
+  }
+}
+
+// ── 还原单个目标 ──────────────────────────────────────
+async function restoreTarget(target) {
+  const targetName = APPLY_TARGET_NAMES[target] || target;
+  try {
+    const res = await fetch('/api/providers/restore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targets: [target] }),
+    });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '还原失败', 'error'); return; }
+    toast(`${targetName} 配置已还原`, 'success');
+    await loadProviders();
+  } catch (e) {
+    toast('还原失败: ' + e.message, 'error');
+  }
+}
+
+// ═══════════ Tab 3: 提示词规则 ═══════════════════
+
+async function loadPromptRules() {
+  try {
+    const res = await fetch('/api/prompt-rules');
+    const data = await res.json();
+    promptRules = data.rules || [];
+    renderRuleList();
+  } catch (e) {
+    toast('加载提示词规则失败', 'error');
+  }
+}
+
+function renderRuleList() {
+  const el = document.getElementById('ruleList');
+  if (promptRules.length === 0) {
+    el.innerHTML = '<div class="empty-list">暂无提示词规则</div>';
+    return;
+  }
+  el.innerHTML = promptRules.map(rule => `
+    <div class="provider-item ${rule.id === selectedRuleId ? 'selected' : ''}" onclick="selectRule('${rule.id}')">
+      <div class="info">
+        <div class="name">${esc(rule.name)}</div>
+        <div class="meta">${rule.enabled ? '启用' : '停用'} · ${rule.target} · /${esc(rule.pattern)}/${esc(rule.flags || '')}</div>
+      </div>
+      <span class="badge">${rule.target}</span>
+      <button class="delete-btn" onclick="event.stopPropagation();deleteRule('${rule.id}')" title="删除">✕</button>
+    </div>`).join('');
+}
+
+function selectRule(id) {
+  selectedRuleId = id;
+  const rule = promptRules.find(x => x.id === id);
+  if (!rule) return;
+
+  document.getElementById('emptyRuleState').style.display = 'none';
+  document.getElementById('ruleFormCard').style.display = 'block';
+  document.getElementById('ruleFormTitle').textContent = '提示词规则详情';
+  document.getElementById('ruleId').value = rule.id;
+  document.getElementById('ruleName').value = rule.name;
+  document.getElementById('ruleEnabled').checked = !!rule.enabled;
+  document.getElementById('ruleTarget').value = rule.target || 'all';
+  document.getElementById('rulePattern').value = rule.pattern || '';
+  document.getElementById('ruleReplacement').value = rule.replacement || '';
+  document.getElementById('ruleFlags').value = rule.flags || 'g';
+  document.getElementById('rulePreviewResult').textContent = '预览结果会显示在这里';
+  renderRuleList();
+}
+
+function showAddRuleForm() {
+  selectedRuleId = null;
+  document.getElementById('emptyRuleState').style.display = 'none';
+  document.getElementById('ruleFormCard').style.display = 'block';
+  document.getElementById('ruleFormTitle').textContent = '添加提示词规则';
+  document.getElementById('ruleId').value = '';
+  document.getElementById('ruleName').value = '';
+  document.getElementById('ruleEnabled').checked = true;
+  document.getElementById('ruleTarget').value = 'all';
+  document.getElementById('rulePattern').value = '';
+  document.getElementById('ruleReplacement').value = '';
+  document.getElementById('ruleFlags').value = 'g';
+  document.getElementById('rulePreviewText').value = '';
+  document.getElementById('rulePreviewResult').textContent = '预览结果会显示在这里';
+  document.getElementById('ruleName').focus();
+  renderRuleList();
+}
+
+function collectRuleForm() {
+  return {
+    id: document.getElementById('ruleId').value || undefined,
+    name: document.getElementById('ruleName').value.trim(),
+    enabled: document.getElementById('ruleEnabled').checked,
+    target: document.getElementById('ruleTarget').value,
+    pattern: document.getElementById('rulePattern').value,
+    replacement: document.getElementById('ruleReplacement').value,
+    flags: document.getElementById('ruleFlags').value.trim() || 'g',
+  };
+}
+
+async function saveRule() {
+  const data = collectRuleForm();
+  if (!data.name || !data.pattern) {
+    toast('请填写规则名称和正则表达式', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/prompt-rules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '保存失败', 'error'); return; }
+    toast(data.id ? '提示词规则已更新' : '提示词规则已添加', 'success');
+    await loadPromptRules();
+    selectRule(result.rule.id);
+  } catch (e) {
+    toast('保存失败: ' + e.message, 'error');
+  }
+}
+
+async function deleteRule(id) {
+  if (!confirm('确定删除此提示词规则？')) return;
+  try {
+    const res = await fetch(`/api/prompt-rules/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '删除失败', 'error'); return; }
+    toast('提示词规则已删除', 'success');
+    selectedRuleId = null;
+    document.getElementById('ruleFormCard').style.display = 'none';
+    document.getElementById('emptyRuleState').style.display = 'flex';
+    await loadPromptRules();
+  } catch (e) {
+    toast('删除失败: ' + e.message, 'error');
+  }
+}
+
+async function previewRule() {
+  const text = document.getElementById('rulePreviewText').value;
+  const data = { ...collectRuleForm(), text };
+  if (!data.pattern) { toast('请先填写正则表达式', 'error'); return; }
+
+  try {
+    const res = await fetch('/api/prompt-rules/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '预览失败', 'error'); return; }
+    document.getElementById('rulePreviewResult').textContent = result.result || '';
+  } catch (e) {
+    toast('预览失败: ' + e.message, 'error');
+  }
+}
+
+// ═══════════ Tab 4: 备份文件 ═══════════════════
+
+let backupsLoaded = false;
+
+async function loadBackups() {
+  backupsLoaded = true;
+
+  try {
+    const res = await fetch('/api/backups');
+    const data = await res.json();
+    renderBackupPanel('claude', data.claude);
+    renderBackupPanel('codex', data.codex);
+  } catch (e) {
+    renderBackupError('claude', e.message);
+    renderBackupError('codex', e.message);
+  }
+}
+
+function renderBackupPanel(target, info) {
+  const contentEl = document.getElementById(`${target}BackupContent`);
+  const metaEl = document.getElementById(`${target}BackupMeta`);
+  const deleteBtn = document.getElementById(`delete${target === 'claude' ? 'Claude' : 'Codex'}Backup`);
+
+  if (!info || !info.exists) {
+    contentEl.innerHTML = `<div class="backup-empty">暂无备份文件</div>`;
+    metaEl.textContent = '';
+    deleteBtn.style.display = 'none';
+    return;
+  }
+
+  const sizeKB = (info.size / 1024).toFixed(1);
+  const time = new Date(info.mtime).toLocaleString('zh-CN');
+  metaEl.textContent = `大小: ${sizeKB} KB · 更新时间: ${time}`;
+  deleteBtn.style.display = 'inline-block';
+
+  // 带行号的代码展示
+  const content = typeof info.content === 'string' ? info.content : '';
+  const lines = content.split('\n');
+  const formatted = lines.map((line, i) =>
+    `<div class="line"><span class="line-number">${i + 1}</span><span>${escHtml(line)}</span></div>`
+  ).join('');
+  contentEl.innerHTML = formatted;
+}
+
+function renderBackupError(target, error) {
+  const contentEl = document.getElementById(`${target}BackupContent`);
+  const metaEl = document.getElementById(`${target}BackupMeta`);
+  const deleteBtn = document.getElementById(`delete${target === 'claude' ? 'Claude' : 'Codex'}Backup`);
+  contentEl.innerHTML = `<div class="backup-empty">加载失败: ${escHtml(error)}</div>`;
+  metaEl.textContent = '';
+  deleteBtn.style.display = 'none';
+}
+
+async function deleteBackup(target) {
+  const targetName = target === 'claude' ? 'Claude' : 'Codex';
+  if (!confirm(`确定删除 ${targetName} 的备份文件？`)) return;
+
+  try {
+    const res = await fetch(`/api/backups/${target}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!result.success) { toast(result.error || '删除失败', 'error'); return; }
+    toast(`${targetName} 备份已删除`, 'success');
+    backupsLoaded = false;
+    await loadBackups();
+  } catch (e) {
+    toast('删除失败: ' + e.message, 'error');
+  }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ═══════════ 通用 ════════════════════════════════════
+
+// ── 更新状态条 ─────────────────────────────────────────
+function updateStatusBar() {
+  const items = [];
+  if (activeForClaude) {
+    items.push(`<span class="item"><span class="dot claude"></span>Claude：${esc(activeForClaude.name)} · ${esc(activeForClaude.model)}</span>`);
+  }
+  if (activeForCodex) {
+    items.push(`<span class="item"><span class="dot codex"></span>Codex：${esc(activeForCodex.name)} · ${esc(activeForCodex.model)}</span>`);
+  }
+  if (activeForOpenai) {
+    items.push(`<span class="item"><span class="dot openai"></span>OpenAI端点：${esc(activeForOpenai.name)} · ${esc(activeForOpenai.model)}</span>`);
+  }
+  if (items.length === 0) {
+    items.push('<span style="color:#555">未配置活跃供应商</span>');
+  }
+  document.getElementById('statusItems').innerHTML = items.join('');
+}
+
+// ── Toast 通知 ────────────────────────────────────────
+function toast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ── API 密钥显示/隐藏 ───────────────────────────────────
+function toggleApiKey() {
+  const input = document.getElementById('formApiKey');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+init();
+</script>
+</body>
+</html>

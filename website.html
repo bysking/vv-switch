@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vv-switch - 智能 API 代理网关</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #22d3ee;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gradient: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+        }
+
+        body {
+            font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: var(--light);
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--dark);
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .structure-container,
+            .conversion-matrix,
+            .protocol-features {
+                grid-template-columns: 1fr;
+            }
+
+            .protocol-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flowchart,
+            .architecture-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow,
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+
+            .url-example {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition:
+                transform 0.3s,
+                box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Data Structures Section */
+        .data-structures {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+
+        .conversion-matrix {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .matrix-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .matrix-card h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .conversion-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .conversion-table th {
+            background: var(--gradient);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .conversion-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .conversion-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .conversion-table code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .protocol-features {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .protocol-feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .protocol-feature-card h4 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .protocol-feature-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .protocol-feature-card li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .protocol-feature-card p {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .structure-container {
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .structure-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .structure-card h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .code-block {
+            background: #1e293b;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .structure-note {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .conversion-arrow {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .arrow-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Flowchart Styles */
+        .flowchart {
+            max-width: 1000px;
+            margin: 0 auto 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .flow-step.client {
+            border-top: 4px solid var(--primary);
+        }
+
+        .flow-step.proxy {
+            border-top: 4px solid var(--secondary);
+        }
+
+        .flow-step.upstream {
+            border-top: 4px solid #10b981;
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step h4 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .request-label,
+        .response-label {
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .response-label {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .proxy-steps {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .proxy-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .step-badge {
+            background: var(--gradient);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            max-width: 1000px;
+            margin: 0 auto 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .arch-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .arch-box h4 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .arch-box p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .client-box {
+            border-top: 4px solid var(--primary);
+        }
+
+        .proxy-box {
+            border-top: 4px solid var(--secondary);
+            min-width: 250px;
+        }
+
+        .upstream-box {
+            border-top: 4px solid #10b981;
+        }
+
+        .proxy-modules {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .module {
+            background: #f8fafc;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .module small {
+            display: block;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .arch-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        /* URL Handling */
+        .url-handling {
+            max-width: 800px;
+            margin: 3rem auto 0;
+        }
+
+        .url-handling h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            font-size: 1.3rem;
+        }
+
+        .url-examples {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .url-example {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .url-example:last-child {
+            margin-bottom: 0;
+        }
+
+        .url-example code {
+            background: #e2e8f0;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .url-example .arrow {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Protocol Flow */
+        .protocol-flow {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .protocol-flow h3 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+
+        .protocol-intro {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .protocol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .protocol-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .protocol-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .from {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .to {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .arrow {
+            color: var(--gray);
+        }
+
+        .conversions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .conversions li {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .conversions li code {
+            background: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .protocol-steps-detail {
+            margin-top: 1rem;
+        }
+
+        .protocol-step-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+            transition: border-color 0.3s;
+            display: flex;
+            gap: 8px;
+        }
+
+        .protocol-step-item.highlight {
+            border-left-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .protocol-step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .protocol-step-item strong {
+            display: block;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .protocol-step-item p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .protocol-step-item p code {
+            background: #e2e8f0;
+            padding: 0.15rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .steps {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .step-number {
+            background: var(--gradient);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .step-content p {
+            color: var(--gray);
+        }
+
+        /* Code Example */
+        .code-section {
+            padding: 4rem 2rem;
+            background: var(--dark);
+            color: white;
+        }
+
+        .code-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .code-section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        pre {
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">vv-switch</div>
+            <div class="nav-links">
+                <a href="#features">核心特性</a>
+                <a href="#data-structures">协议转换</a>
+                <a href="#how-it-works">架构原理</a>
+                <a href="#install">快速安装</a>
+                <a href="https://github.com/bysking/vv-switch">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>vv-switch</h1>
+        <p class="subtitle">
+            LLM API 协议转换代理 —— 让 Claude Code 和 OpenAI Codex 连接国内主流LLM
+            提供商
+        </p>
+        <a href="#install" class="cta-button">立即开始</a>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">核心特性</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>双向协议转换</h3>
+                <p>
+                    支持 Responses API ↔ Chat Completions、Anthropic Messages ↔ Chat
+                    Completions 的双向转换，完整保留工具调用和推理内容。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏢</div>
+                <h3>多供应商支持</h3>
+                <p>
+                    内置对 DeepSeek、DashScope（阿里百炼）、智谱、Ollama 等国内外 LLM
+                    提供商的支持，可灵活配置和切换。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>可视化日志</h3>
+                <p>
+                    JSONL 格式日志保存在 .vv-switch-logs/ 目录，内置 HTML
+                    日志查看器，支持会话列表、搜索过滤和自动刷新。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>配置管理</h3>
+                <p>
+                    友好的 Web UI 管理供应商配置，支持 Claude Code 和 OpenAI Codex
+                    的一键配置应用，停止服务时自动还原。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>安全备份</h3>
+                <p>
+                    自动备份原始配置文件到用户顶层目录，Ctrl+C
+                    停止服务时从磁盘备份或内存副本完整恢复原有配置。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>流式支持</h3>
+                <p>
+                    全链路 SSE 流式支持，正确的增量文本 delta、工具调用参数
+                    delta、finish reason 和 usage tokens 处理。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Structures -->
+    <section class="data-structures" id="data-structures">
+        <h2 class="section-title">协议转换矩阵</h2>
+        <div class="conversion-matrix">
+            <div class="matrix-card">
+                <h3>Codex 路径（Responses API）</h3>
+                <table class="conversion-table">
+                    <thead>
+                        <tr>
+                            <th>客户端协议</th>
+                            <th>上游协议</th>
+                            <th>模式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Responses API</td>
+                            <td>Chat Completions</td>
+                            <td><code>protocolType: "chat"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Responses API</td>
+                            <td>Anthropic Messages</td>
+                            <td><code>protocolType: "anthropic"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Responses API</td>
+                            <td>Ollama API</td>
+                            <td><code>protocolType: "ollama"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="matrix-card">
+                <h3>Claude 路径（Anthropic Messages API）</h3>
+                <table class="conversion-table">
+                    <thead>
+                        <tr>
+                            <th>客户端协议</th>
+                            <th>上游协议</th>
+                            <th>模式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Messages API</td>
+                            <td>Chat Completions</td>
+                            <td><code>protocolType: "chat"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Messages API</td>
+                            <td>Anthropic Messages</td>
+                            <td><code>protocolType: "anthropic"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Messages API</td>
+                            <td>Ollama API</td>
+                            <td><code>protocolType: "ollama"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="protocol-features">
+            <div class="protocol-feature-card">
+                <h4>核心功能支持</h4>
+                <ul>
+                    <li>✅ 多轮工具调用（tool calling）</li>
+                    <li>✅ SSE 流式响应与增量 delta</li>
+                    <li>✅ 推理内容（reasoning_content）</li>
+                    <li>✅ temperature / max_tokens / top_p 参数映射</li>
+                    <li>✅ tool_choice 策略转换</li>
+                </ul>
+            </div>
+            <div class="protocol-feature-card">
+                <h4>配置注入机制</h4>
+                <p>
+                    <strong>Claude Code：</strong>修改 ~/.claude/settings.json，设置
+                    ANTHROPIC_BASE_URL 等环境变量
+                </p>
+                <p>
+                    <strong>OpenAI Codex：</strong>修改 ~/.codex/config.toml，添加
+                    vv-switch 模型提供商
+                </p>
+                <p><strong>自动还原：</strong>Ctrl+C 停止时从备份恢复原始配置</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">核心架构与数据流</h2>
+
+        <div class="architecture-diagram">
+            <div class="arch-box client-box">
+                <h4>客户端</h4>
+                <p>Claude Code → /v1/messages<br />Codex → /v1/responses</p>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box proxy-box">
+                <h4>vv-switch Proxy (4321)</h4>
+                <div class="proxy-modules">
+                    <div class="module">
+                        config-server.js<br /><small>Web UI + 供应商管理</small>
+                    </div>
+                    <div class="module">
+                        server.js<br /><small>Responses API 转换</small>
+                    </div>
+                    <div class="module">
+                        anthropic-handler.js<br /><small>Messages API 转换</small>
+                    </div>
+                    <div class="module">
+                        providers-manager.js<br /><small>配置持久化</small>
+                    </div>
+                </div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box upstream-box">
+                <h4>上游服务</h4>
+                <p>DeepSeek / DashScope / 智谱 / Ollama</p>
+            </div>
+        </div>
+
+        <div class="flowchart">
+            <div class="flow-step client">
+                <div class="step-icon">📱</div>
+                <h4>客户端请求</h4>
+                <p>Claude Code / Codex</p>
+                <div class="request-label">发送 API 请求</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step proxy">
+                <div class="step-icon">🔄</div>
+                <h4>vv-switch 代理</h4>
+                <div class="proxy-steps">
+                    <div class="proxy-step">
+                        <span class="step-badge">1</span>
+                        <span>提取对话历史</span>
+                    </div>
+                    <div class="proxy-step">
+                        <span class="step-badge">2</span>
+                        <span>构建上游请求</span>
+                    </div>
+                    <div class="proxy-step">
+                        <span class="step-badge">3</span>
+                        <span>匹配协议策略</span>
+                    </div>
+                    <div class="proxy-step">
+                        <span class="step-badge">4</span>
+                        <span>转发并转换响应</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step upstream">
+                <div class="step-icon">☁️</div>
+                <h4>上游服务</h4>
+                <p>DeepSeek / Ollama / Anthropic</p>
+                <div class="response-label">返回 AI 响应</div>
+            </div>
+        </div>
+
+        <div class="protocol-flow">
+            <h3>协议转换细节</h3>
+            <p class="protocol-intro">vv-switch 自动处理不同 API 协议之间的字段映射，让你可以无缝切换各大 AI 提供商</p>
+            <div class="protocol-grid">
+                <div class="protocol-card">
+                    <div class="protocol-header">
+                        <span class="from">Responses API</span>
+                        <span class="arrow">→</span>
+                        <span class="to">Chat Completions</span>
+                    </div>
+                    <div class="protocol-steps-detail">
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <strong>对话历史转换</strong>
+                                <p><code>instructions</code> → <code>system</code> 消息</p>
+                                <p><code>input[]</code> → <code>messages[]</code> 数组</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <strong>工具调用映射</strong>
+                                <p><code>function_call</code> → <code>assistant.tool_calls[]</code></p>
+                                <p><code>function_call_output</code> → <code>tool</code> 角色消息</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <strong>流式响应处理</strong>
+                                <p>工具参数增量拼接 <code>arguments += delta</code></p>
+                                <p>检测到 <code>finish_reason: "tool_calls"</code> 时关闭消息</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">4</span>
+                            <div>
+                                <strong>其他参数映射</strong>
+                                <p><code>max_output_tokens</code> → <code>max_tokens</code></p>
+                                <p><code>reasoning.effort</code> → <code>reasoning_effort</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="protocol-card">
+                    <div class="protocol-header">
+                        <span class="from">Anthropic Messages</span>
+                        <span class="arrow">→</span>
+                        <span class="to">Chat Completions</span>
+                    </div>
+                    <div class="protocol-steps-detail">
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <strong>系统提示词处理</strong>
+                                <p><code>system</code> 字段 → <code>system</code> 消息</p>
+                                <p>支持文本和 content block 数组格式</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <strong>消息内容转换</strong>
+                                <p><code>user.content[]</code> → <code>content</code> 字符串</p>
+                                <p><code>assistant.tool_use[]</code> → <code>tool_calls[]</code></p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <strong>工具结果处理</strong>
+                                <p>上游不支持 tool role 时降级为 user 消息</p>
+                                <p><code>tool_result</code> → 格式化为用户可读文本</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">4</span>
+                            <div>
+                                <strong>参数传递</strong>
+                                <p><code>max_tokens</code>、<code>temperature</code>、<code>top_k</code></p>
+                                <p><code>tool_choice</code> 策略转换（any/auto/tool）</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="protocol-card">
+                    <div class="protocol-header">
+                        <span class="from">Anthropic Messages</span>
+                        <span class="arrow">→</span>
+                        <span class="to">Anthropic Messages</span>
+                    </div>
+                    <div class="protocol-steps-detail">
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <strong>最小化处理</strong>
+                                <p>直接透传请求，仅替换 <code>model</code> 字段</p>
+                                <p>修正 message ID 保持一致性</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item highlight">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <strong>URL 智能适配</strong>
+                                <p><code>/v1</code> → <code>/v1/messages</code></p>
+                                <p>自动识别不同上游端点格式</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <strong>SSE 事件透传</strong>
+                                <p>所有事件原样转发，零延迟传递</p>
+                                <p>修正 <code>message_start</code> 的 id/model</p>
+                            </div>
+                        </div>
+                        <div class="protocol-step-item">
+                            <span class="step-badge">4</span>
+                            <div>
+                                <strong>适用场景</strong>
+                                <p>DashScope <code>/apps/anthropic</code></p>
+                                <p>智谱等原生兼容端点</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="url-handling">
+            <h3>URL 智能处理</h3>
+            <div class="url-examples">
+                <div class="url-example">
+                    <code>buildChatUrl("https://api.deepseek.com/v1")</code>
+                    <span class="arrow">→</span>
+                    <code>"https://api.deepseek.com/chat/completions"</code>
+                </div>
+                <div class="url-example">
+                    <code>buildMessagesUrl("https://dashscope.aliyuncs.com/apps/anthropic")</code>
+                    <span class="arrow">→</span>
+                    <code>"https://dashscope.aliyuncs.com/apps/anthropic/v1/messages"</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section class="code-section" id="install">
+        <div class="code-container">
+            <h2>快速安装</h2>
+            <pre><code># 带日志启动服务（默认端口 4321）
+# 日志在当前目录.vv-switch-logs,
+# 浏览器打开里面的html文件即可，每次请求后，刷新下网页即可查看最新数据
+npx vv-switch --logs
+
+# 不带日志启动 (推荐，减少日志对磁盘占用)
+npx vv-switch
+
+# 打开配置页面
+# 浏览器访问 http://localhost:4321
+            </code></pre>
+            <p style="margin-top: 1rem; text-align: center">
+                访问
+                <code style="
+              background: #334155;
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+            ">http://localhost:4321</code>
+                打开配置管理界面
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Made with ❤️ by <a href="https://github.com/bysking">bysking</a></p>
+        <p style="margin-top: 0.5rem">
+            Licensed under <a href="./LICENSE">Commercial License</a>
+        </p>
+    </footer>
+</body>
+
+</html>
