@@ -54,10 +54,15 @@ export function registerCodexRoute(app: Application, options: CodexRouteOptions)
       if (typeof val === 'string') extraHeaders[key] = val;
     }
 
+    // 提取 reasoning.effort，传给序列化层用于响应的 reasoning.effort 字段
+    const reasoning = (body as { reasoning?: { effort?: string } }).reasoning;
+    const reasoningEffort = typeof reasoning?.effort === 'string' ? reasoning.effort : undefined;
+
     const context = {
       id: respId,
       defaultModel,
       headers: extraHeaders,
+      reasoningEffort,
     };
 
     let stdReq;

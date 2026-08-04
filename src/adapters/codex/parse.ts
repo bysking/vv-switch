@@ -18,6 +18,7 @@ interface ResponsesInputItem {
   name?: string;
   arguments?: string | unknown;
   output?: string;
+  summary?: string;
 }
 
 interface ResponsesBody {
@@ -105,6 +106,31 @@ export function parseCodexRequest(body: unknown, context: AdapterContext): Stand
             output: typeof item.output === 'string' ? item.output : JSON.stringify(item.output ?? ''),
           }],
         });
+        continue;
+      }
+
+      if (itemType === 'reasoning') {
+        // DeepSeek/OpenAI Responses API: reasoning 类型的 input item，
+        // 明文 content 归并到相邻 assistant 消息的 thinking block。
+        // summary / encrypted_content 不支持，忽略。
+        const parts = inputItemContentToParts(item.content);
+        const reasoningText = parts
+          .filter((p) => p.type === 'text')
+          .map((p) => (p as { type: 'text'; text: string }).text)
+          .join('');
+        if (reasoningText) {
+          // 追加到上一条 assistant 消息的 content 中（作为 thinking block）
+          const lastMsg = messages[messages.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant' && Array.isArray(lastMsg.content)) {
+            lastMsg.content.push({ type: 'thinking', text: reasoningText });
+          } else if (lastMsg && lastMsg.role === 'assistant' && typeof lastMsg.content === 'string') {
+            lastMsg.content = [
+              { type: 'text', text: lastMsg.content },
+              { type: 'thinking', text: reasoningText },
+            ];
+          }
+          // 没有前置 assistant 消息则丢弃（不应该出现）
+        }
         continue;
       }
 

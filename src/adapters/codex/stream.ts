@@ -34,9 +34,22 @@ export async function* serializeCodexStream(
   let totalCombined = 0;
   let cachedInput = 0;
   let reasoningOutput = 0;
+  let seqNum = 0;
+  let reasoningEffort = 'medium';
   const tools = new Map<string, ActiveTool>();
   const toolsByIndex = new Map<number, ActiveTool>();
   const completedTools: Array<ActiveTool> = [];
+
+  // 从 context 中提取 reasoning effort（如果有）
+  const ctxEffort = (context as Record<string, unknown>).reasoningEffort;
+  if (typeof ctxEffort === 'string' && ctxEffort) {
+    reasoningEffort = ctxEffort;
+  }
+
+  const emit = (payload: Record<string, unknown>): string => {
+    seqNum += 1;
+    return sseData({ ...payload, sequence_number: seqNum });
+  };
 
   const baseResponse = () => ({
     id: respId,
@@ -48,16 +61,17 @@ export async function* serializeCodexStream(
     usage: null,
     parallel_tool_calls: true,
     previous_response_id: null,
-    reasoning: { effort: 'medium', summary: 'auto' },
+    reasoning: { effort: reasoningEffort, summary: 'auto' },
     text: { format: { type: 'text' } },
     tools: [],
     truncation: 'disabled',
+    store: false,
   });
 
   function* openMessage(): Generator<string> {
     if (msgOpen) return;
     msgOpen = true;
-    yield sseData({
+    yield emit({
       type: 'response.output_item.added',
       output_index: outputIndex,
       item: {
@@ -68,7 +82,7 @@ export async function* serializeCodexStream(
         content: [],
       },
     });
-    yield sseData({
+    yield emit({
       type: 'response.content_part.added',
       output_index: outputIndex,
       content_index: 0,
@@ -80,13 +94,13 @@ export async function* serializeCodexStream(
     if (!msgOpen || msgClosed) return;
     msgClosed = true;
     const part = { type: 'output_text', text: fullText, annotations: [] };
-    yield sseData({
+    yield emit({
       type: 'response.content_part.done',
       output_index: outputIndex,
       content_index: 0,
       part,
     });
-    yield sseData({
+    yield emit({
       type: 'response.output_item.done',
       output_index: outputIndex,
       item: {
@@ -104,15 +118,15 @@ export async function* serializeCodexStream(
     switch (event.type) {
       case 'START':
         model = event.model;
-        yield sseData({ type: 'response.created', response: baseResponse() });
-        yield sseData({ type: 'response.in_progress', response: baseResponse() });
+        yield emit({ type: 'response.created', response: baseResponse() });
+        yield emit({ type: 'response.in_progress', response: baseResponse() });
         yield* openMessage();
         break;
 
       case 'TOKEN':
         if (!msgOpen) yield* openMessage();
         fullText += event.text;
-        yield sseData({
+        yield emit({
           type: 'response.output_text.delta',
           item_id: msgId,
           output_index: outputIndex,
@@ -122,7 +136,7 @@ export async function* serializeCodexStream(
         break;
 
       case 'THINKING':
-        yield sseData({
+        yield emit({
           type: 'response.reasoning_text.delta',
           item_id: msgId,
           output_index: outputIndex,
@@ -147,7 +161,7 @@ export async function* serializeCodexStream(
         toolsByIndex.set(event.index, tool);
         const shellTag = isShellTool(event.name) ? ' [💻 shell]' : '';
         console.log(`${ICON.toolStart} [vv-switch] [codex-serialize] tool_use start | name=${event.name}${shellTag} | id=${event.id}`);
-        yield sseData({
+        yield emit({
           type: 'response.output_item.added',
           output_index: outputIndex,
           item: {
@@ -167,7 +181,7 @@ export async function* serializeCodexStream(
         const tool = tools.get(event.id) || toolsByIndex.get(event.index);
         if (tool) {
           tool.args += event.argumentsDelta;
-          yield sseData({
+          yield emit({
             type: 'response.function_call_arguments.delta',
             item_id: tool.id,
             output_index: tool.outputIndex,
@@ -183,13 +197,13 @@ export async function* serializeCodexStream(
           const finalArgs = event.arguments || tool.args;
           const summary = summarizeToolArgs(tool.name, finalArgs);
           console.log(`${ICON.toolEnd}   [vv-switch] [codex-serialize] tool_use end   | name=${tool.name} | ${summary} | id=${tool.id}`);
-          yield sseData({
+          yield emit({
             type: 'response.function_call_arguments.done',
             item_id: tool.id,
             output_index: tool.outputIndex,
             arguments: finalArgs,
           });
-          yield sseData({
+          yield emit({
             type: 'response.output_item.done',
             output_index: tool.outputIndex,
             item: {
@@ -220,7 +234,7 @@ export async function* serializeCodexStream(
 
       case 'ERROR':
         console.error(`${ICON.error} [vv-switch] [codex-stream] UPSTREAM ERROR | model=%s | code=%s | message=%s`, model, event.code || 'unknown', event.message);
-        yield sseData({
+        yield emit({
           type: 'response.failed',
           response: {
             id: respId,
@@ -229,6 +243,9 @@ export async function* serializeCodexStream(
             status: 'failed',
             model,
             error: { code: event.code || 'upstream_error', message: event.message },
+            parallel_tool_calls: true,
+            previous_response_id: null,
+            store: false,
           },
         });
         yield 'data: [DONE]\n\n';
@@ -260,7 +277,7 @@ export async function* serializeCodexStream(
 
         // 关键：按 stopReason 上报 response.status，不能再写死 'completed'。
         // 截断(max_tokens) 必须报 'incomplete' + incomplete_details.reason='max_output_tokens'，
-        // 否则 Codex 会把“半截输出”当成助手主动结束，导致 agent 循环中断、需用户手动“继续”。
+        // 否则 Codex 会把”半截输出”当成助手主动结束，导致 agent 循环中断、需用户手动”继续”。
         const terminal = toResponsesTerminal(event.stopReason);
         const completedResponse: Record<string, unknown> = {
           id: respId,
@@ -278,15 +295,23 @@ export async function* serializeCodexStream(
           },
           parallel_tool_calls: true,
           previous_response_id: null,
-          reasoning: { effort: 'medium', summary: 'auto' },
+          reasoning: { effort: reasoningEffort, summary: 'auto' },
           text: { format: { type: 'text' } },
           tools: [],
           truncation: 'disabled',
+          store: false,
         };
         if (terminal.incomplete_details) {
           completedResponse.incomplete_details = terminal.incomplete_details;
         }
-        yield sseData({ type: 'response.completed', response: completedResponse });
+
+        // 终态事件类型必须与 status 对齐：
+        //   completed  → response.completed
+        //   incomplete → response.incomplete
+        //   failed     → response.failed（ERROR 分支已处理）
+        const finalEventType =
+          terminal.status === 'incomplete' ? 'response.incomplete' : 'response.completed';
+        yield emit({ type: finalEventType, response: completedResponse });
         yield 'data: [DONE]\n\n';
         return;
       }

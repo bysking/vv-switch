@@ -10,6 +10,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { serializeCodexStream } from '../../src/adapters/codex/stream.js';
 import { serializeCodexResponse } from '../../src/adapters/codex/serialize.js';
+import { parseCodexRequest } from '../../src/adapters/codex/parse.js';
 import { createStandardResponse } from '../../src/protocol/standard-response.js';
 import type { StreamEvent } from '../../src/protocol/stream-events.js';
 import type { AdapterContext } from '../../src/types/adapter.js';
@@ -44,17 +45,20 @@ describe('adapters/codex serializeStream — response.status 映射', () => {
     assert.equal(completed.response.incomplete_details, undefined);
   });
 
-  it('max_tokens → status incomplete + incomplete_details.reason=max_output_tokens', async () => {
+  it('max_tokens → 发送 response.incomplete 事件 + status=incomplete + incomplete_details', async () => {
     const events: StreamEvent[] = [
       { type: 'START', id: 'r', model: 'm' },
       { type: 'TOKEN', text: '被截断的半截输出' },
       { type: 'END', stopReason: 'max_tokens' },
     ];
     const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    // 截断时终态事件类型应为 response.incomplete，而非 response.completed
     const completed = json.find((c) => c.type === 'response.completed');
-    assert.ok(completed);
-    assert.equal(completed.response.status, 'incomplete');
-    assert.deepEqual(completed.response.incomplete_details, { reason: 'max_output_tokens' });
+    assert.equal(completed, undefined, '截断时不应出现 response.completed');
+    const incomplete = json.find((c) => c.type === 'response.incomplete');
+    assert.ok(incomplete, '截断时应发送 response.incomplete 事件');
+    assert.equal(incomplete.response.status, 'incomplete');
+    assert.deepEqual(incomplete.response.incomplete_details, { reason: 'max_output_tokens' });
   });
 
   it('tool_use → status completed(Codex 应继续执行工具,而非中断)', async () => {
@@ -132,5 +136,152 @@ describe('adapters/codex serializeResponse — 非流式 status 映射', () => {
       assert.equal(body.status, 'completed');
       assert.equal(body.incomplete_details, undefined);
     }
+  });
+
+  it('响应体包含 store: false 字段', () => {
+    const resp = createStandardResponse({
+      id: 'r', model: 'm',
+      content: [{ type: 'text', text: 'ok' }],
+      stopReason: 'end_turn',
+    });
+    const body = serializeCodexResponse(resp, ctx);
+    assert.equal(body.store, false);
+  });
+
+  it('reasoning.effort 从 context 透传', () => {
+    const resp = createStandardResponse({
+      id: 'r', model: 'm',
+      content: [{ type: 'text', text: 'ok' }],
+      stopReason: 'end_turn',
+    });
+    const ctxHigh = { ...ctx, reasoningEffort: 'high' };
+    const body = serializeCodexResponse(resp, ctxHigh);
+    assert.equal(body.reasoning?.effort, 'high');
+  });
+
+  it('reasoning.effort 默认 medium（context 中无值时）', () => {
+    const resp = createStandardResponse({
+      id: 'r', model: 'm',
+      content: [{ type: 'text', text: 'ok' }],
+      stopReason: 'end_turn',
+    });
+    const body = serializeCodexResponse(resp, ctx);
+    assert.equal(body.reasoning?.effort, 'medium');
+  });
+});
+
+describe('adapters/codex serializeStream — 协议字段完善', () => {
+  it('所有流式事件都带递增的 sequence_number', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r', model: 'm' },
+      { type: 'TOKEN', text: 'hello' },
+      { type: 'END', stopReason: 'end_turn' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    assert.ok(json.length > 0, '应产出事件');
+    for (let i = 0; i < json.length; i++) {
+      const ev = json[i];
+      if (ev.type === '[DONE]') continue;
+      assert.equal(typeof ev.sequence_number, 'number', `事件 #${i} (${ev.type}) 应有 sequence_number`);
+      assert.equal(ev.sequence_number, i + 1, `sequence_number 应从 1 递增`);
+    }
+  });
+
+  it('流式终态响应包含 store: false', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r', model: 'm' },
+      { type: 'TOKEN', text: 'ok' },
+      { type: 'END', stopReason: 'end_turn' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    const completed = json.find((c) => c.type === 'response.completed');
+    assert.ok(completed);
+    assert.equal(completed.response.store, false);
+  });
+
+  it('流式 reasoning.effort 从 context 透传', async () => {
+    const ctxHigh = { ...ctx, reasoningEffort: 'high' };
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r', model: 'm' },
+      { type: 'TOKEN', text: 'ok' },
+      { type: 'END', stopReason: 'end_turn' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctxHigh));
+    const completed = json.find((c) => c.type === 'response.completed');
+    assert.ok(completed);
+    assert.equal(completed.response.reasoning.effort, 'high');
+  });
+
+  it('流式 ERROR 路径发送 response.failed + store: false', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r', model: 'm' },
+      { type: 'ERROR', message: 'boom', code: 'test_err' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    const failed = json.find((c) => c.type === 'response.failed');
+    assert.ok(failed, '错误时应发送 response.failed 事件');
+    assert.equal(failed.response.status, 'failed');
+    assert.equal(failed.response.store, false);
+  });
+});
+
+describe('adapters/codex parseRequest — 输入解析', () => {
+  it('reasoning 类型 input item 归入上一条 assistant 消息的 thinking block', () => {
+    const body = {
+      model: 'm',
+      input: [
+        { type: 'message', role: 'user', content: 'hi' },
+        {
+          type: 'message',
+          role: 'assistant',
+          content: [{ type: 'output_text', text: 'hello' }],
+        },
+        {
+          type: 'reasoning',
+          content: [{ type: 'output_text', text: 'I should think about this' }],
+        },
+        { type: 'message', role: 'user', content: 'next' },
+      ],
+    };
+    const req = parseCodexRequest(body, ctx);
+    // 第二条 assistant 消息应包含 text + thinking 两部分
+    const assistantMsg = req.messages.find((m) => m.role === 'assistant');
+    assert.ok(assistantMsg, '应有 assistant 消息');
+    assert.ok(Array.isArray(assistantMsg.content), 'assistant content 应为数组');
+    const parts = assistantMsg.content as Array<{ type: string; text?: string }>;
+    const thinkingPart = parts.find((p) => p.type === 'thinking');
+    assert.ok(thinkingPart, '应包含 thinking block');
+    assert.equal(thinkingPart.text, 'I should think about this');
+    const textPart = parts.find((p) => p.type === 'text');
+    assert.ok(textPart, '应包含 text block');
+    assert.equal(textPart.text, 'hello');
+  });
+
+  it('reasoning input item 无上一条 assistant 消息时被安全忽略', () => {
+    const body = {
+      model: 'm',
+      input: [
+        {
+          type: 'reasoning',
+          content: [{ type: 'output_text', text: 'orphan reasoning' }],
+        },
+        { type: 'message', role: 'user', content: 'hi' },
+      ],
+    };
+    const req = parseCodexRequest(body, ctx);
+    // 不应报错，且 reasoning 内容不混入 user 消息
+    assert.equal(req.messages.length, 1);
+    assert.equal(req.messages[0].role, 'user');
+  });
+
+  it('reasoning.effort 从请求体解析到 parameters', () => {
+    const body = {
+      model: 'm',
+      input: 'hi',
+      reasoning: { effort: 'high' },
+    };
+    const req = parseCodexRequest(body, ctx);
+    assert.equal(req.parameters.reasoningEffort, 'high');
+    assert.deepEqual(req.parameters.thinking, { type: 'enabled' });
   });
 });

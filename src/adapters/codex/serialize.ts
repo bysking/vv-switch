@@ -27,6 +27,7 @@ export interface ResponsesResponseBody {
   text: { format: { type: 'text' } };
   tools: Array<unknown>;
   truncation: 'disabled';
+  store: false;
   incomplete_details?: { reason: string };
 }
 
@@ -70,6 +71,10 @@ export function serializeCodexResponse(
     .map((c) => c.text)
     .filter(Boolean);
 
+  // 从 context 中提取 reasoning effort（如果有），默认 medium
+  const ctxEffort = (context as Record<string, unknown>).reasoningEffort;
+  const reasoningEffort = typeof ctxEffort === 'string' && ctxEffort ? ctxEffort : 'medium';
+
   // 终态按 stopReason 映射(截断→incomplete,错误→failed),单一权威来源在 shared/stop-reason
   const terminal = toResponsesTerminal(response.stopReason);
 
@@ -92,10 +97,11 @@ export function serializeCodexResponse(
     },
     parallel_tool_calls: true,
     previous_response_id: null,
-    reasoning: { effort: 'medium', summary: reasoningParts.join('\n') || 'auto' },
+    reasoning: { effort: reasoningEffort, summary: reasoningParts.join('\n') || 'auto' },
     text: { format: { type: 'text' } },
     tools: [],
     truncation: 'disabled',
+    store: false,
   };
   if (terminal.incomplete_details) {
     body.incomplete_details = terminal.incomplete_details;
