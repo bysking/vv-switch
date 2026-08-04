@@ -1,6 +1,6 @@
 {
   "name": "@bysking/vv-switch",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "js实现的claude和codex的大模型转发代理工具，支持供应商配置，支持可视化日志查看",
   "repository": {
     "type": "git",
@@ -33,7 +33,8 @@
     "responses-api",
     "codex",
     "cli",
-    "vv-switch"
+    "vv-switch",
+    "@bysking/vv-switch"
   ],
   "license": "SEE LICENSE IN LICENSE",
   "files": [
