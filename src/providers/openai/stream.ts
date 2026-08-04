@@ -27,6 +27,7 @@ interface ResponsesStreamData {
     arguments?: string;
   };
   response?: {
+    id?: string;
     status?: string;
     incomplete_details?: { reason?: string };
     usage?: { input_tokens?: number; output_tokens?: number };
@@ -58,6 +59,7 @@ export async function* parseResponsesStream(
   let totalOutput = 0;
   let completedStatus: string | undefined;
   let completedIncompleteReason: string | undefined;
+  let upstreamResponseId: string | undefined;
   const activeTools = new Map<string, ActiveTool>();
 
   try {
@@ -129,6 +131,11 @@ export async function* parseResponsesStream(
             break;
           }
           case 'response.completed':
+          case 'response.incomplete':
+          case 'response.failed':
+            if (data.response?.id) {
+              upstreamResponseId = data.response.id;
+            }
             if (data.response?.usage) {
               totalInput = data.response.usage.input_tokens ?? 0;
               totalOutput = data.response.usage.output_tokens ?? 0;
@@ -156,5 +163,9 @@ export async function* parseResponsesStream(
     : activeTools.size > 0
       ? 'tool_use'
       : 'end_turn';
-  yield { type: 'END', stopReason: streamStopReason };
+  yield {
+    type: 'END',
+    stopReason: streamStopReason,
+    ...(upstreamResponseId ? { upstreamId: upstreamResponseId } : {}),
+  };
 }

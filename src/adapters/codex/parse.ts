@@ -38,6 +38,7 @@ interface ResponsesBody {
     parameters?: Record<string, unknown>;
     function?: { name?: string; description?: string; parameters?: Record<string, unknown> };
   }>;
+  previous_response_id?: string;
 }
 
 function inputItemContentToParts(content: unknown): StandardContentPart[] {
@@ -188,6 +189,7 @@ export function parseCodexRequest(body: unknown, context: AdapterContext): Stand
       endpoint: '/v1/responses',
       caller: 'codex',
       rawHeaders: context.headers,
+      previousResponseId: data.previous_response_id,
     },
     raw: data,
   });

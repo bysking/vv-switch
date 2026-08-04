@@ -284,4 +284,63 @@ describe('adapters/codex parseRequest — 输入解析', () => {
     assert.equal(req.parameters.reasoningEffort, 'high');
     assert.deepEqual(req.parameters.thinking, { type: 'enabled' });
   });
+
+  it('previous_response_id 解析到 metadata.previousResponseId', () => {
+    const body = {
+      model: 'm',
+      input: 'continue',
+      previous_response_id: 'resp_abc123',
+    };
+    const req = parseCodexRequest(body, ctx);
+    assert.equal(req.metadata.previousResponseId, 'resp_abc123');
+  });
+
+  it('previous_response_id 缺失时 metadata.previousResponseId 为 undefined', () => {
+    const body = {
+      model: 'm',
+      input: 'hi',
+    };
+    const req = parseCodexRequest(body, ctx);
+    assert.equal(req.metadata.previousResponseId, undefined);
+  });
+});
+
+describe('adapters/codex serializeStream — upstreamId 透传（策略A）', () => {
+  it('END 事件带 upstreamId 时，终态 response.id 使用上游 id', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r_local', model: 'm' },
+      { type: 'TOKEN', text: 'hello' },
+      { type: 'END', stopReason: 'end_turn', upstreamId: 'resp_upstream_xyz' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    const completed = json.find((c) => c.type === 'response.completed');
+    assert.ok(completed);
+    assert.equal(completed.response.id, 'resp_upstream_xyz',
+      '终态 response.id 应使用上游 id 以支持 previous_response_id 续接');
+  });
+
+  it('END 事件无 upstreamId 时，终态 response.id 使用本地生成的 id', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r_local', model: 'm' },
+      { type: 'TOKEN', text: 'hello' },
+      { type: 'END', stopReason: 'end_turn' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    const completed = json.find((c) => c.type === 'response.completed');
+    assert.ok(completed);
+    assert.ok(completed.response.id, '应有 response.id');
+    assert.notEqual(completed.response.id, '', 'id 不应为空');
+  });
+
+  it('upstreamId 在 response.incomplete 终态中也生效', async () => {
+    const events: StreamEvent[] = [
+      { type: 'START', id: 'r_local', model: 'm' },
+      { type: 'TOKEN', text: 'cut' },
+      { type: 'END', stopReason: 'max_tokens', upstreamId: 'resp_upstream_cut' },
+    ];
+    const json = await collectSse(serializeCodexStream(fromEvents(events), ctx));
+    const incomplete = json.find((c) => c.type === 'response.incomplete');
+    assert.ok(incomplete);
+    assert.equal(incomplete.response.id, 'resp_upstream_cut');
+  });
 });

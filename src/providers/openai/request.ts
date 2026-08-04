@@ -36,6 +36,7 @@ export interface ResponsesRequest {
     parameters: Record<string, unknown>;
   }>;
   tool_choice?: unknown;
+  previous_response_id?: string;
 }
 
 function messageToResponsesItems(msg: StandardMessage): ResponsesRequestItem[] {
@@ -124,6 +125,13 @@ export function buildResponsesRequest(request: StandardRequest, defaultModel?: s
     } else if (typeof request.toolChoice === 'object' && (request.toolChoice as any).type === 'tool') {
       req.tool_choice = { type: 'function', name: (request.toolChoice as any).name };
     }
+  }
+
+  // previous_response_id 透传：仅当上游为 Responses API 且客户端传了该字段时透传
+  // 由策略 A 支持，上游服务端维护对话状态，网关不介入
+  const prevId = request.metadata?.previousResponseId;
+  if (typeof prevId === 'string' && prevId) {
+    req.previous_response_id = prevId;
   }
 
   return req;

@@ -85,6 +85,8 @@ export interface StreamEndEvent {
     category?: string | null;
     explanation?: string;
   } | null;
+  /** 上游返回的 response id（透传用，策略A 中用于 previous_response_id 链） */
+  upstreamId?: string;
 }
 
 export type StreamEvent =

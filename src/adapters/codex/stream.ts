@@ -279,8 +279,13 @@ export async function* serializeCodexStream(
         // 截断(max_tokens) 必须报 'incomplete' + incomplete_details.reason='max_output_tokens'，
         // 否则 Codex 会把”半截输出”当成助手主动结束，导致 agent 循环中断、需用户手动”继续”。
         const terminal = toResponsesTerminal(event.stopReason);
+
+        // 策略 A:上游返回了 upstreamId 时用它作为 response.id，
+        // 这样客户端下一轮传 previous_response_id 时能正确链到上游的服务端状态
+        const finalId = event.upstreamId || respId;
+
         const completedResponse: Record<string, unknown> = {
-          id: respId,
+          id: finalId,
           object: 'response',
           created_at: created,
           status: terminal.status,
