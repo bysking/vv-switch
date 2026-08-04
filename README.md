@@ -23,11 +23,14 @@ vv-switch 是一个轻量级 API 代理，运行在本地（默认http://localho
 ### 使用 npx（推荐）
 
 ```bash
-# 带日志启动服务（默认端口 4321），日志在当前目录 .vv-switch-logs，浏览器打开里面的 html 文件即可
-npx vv-switch --logs
 
-# 不带日志启动
+# 不带日志启动 (推荐)
 npx vv-switch
+
+# 带日志启动服务（默认端口 4321），日志在当前目录 .vv-switch-logs，记得通过页面日志tab,及时删除日志，避免内存占用
+npx vv-switch --logs 
+
+
 
 # 开启协议转换链路日志（用于排查协议兼容问题, 最多保留最近5轮日志）
 npx vv-switch --protocol-log
