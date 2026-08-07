@@ -1,6 +1,6 @@
 {
   "name": "@bysking/vv-switch",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "js实现的claude和codex的大模型转发代理工具，支持供应商管理，支持可视化日志查看，支持openai、chat-completions、responses-api等多种大模型的转发代理",
   "repository": {
     "type": "git",

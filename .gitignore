@@ -7,3 +7,4 @@ my-custom-logs
 .vv-switch-logs
 log/
 .claude/
+.npmrc
