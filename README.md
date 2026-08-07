@@ -2,7 +2,7 @@
 
 > LLM API 协议转换代理 —— 让 Claude Code、OpenAI Codex 和 VS Code Copilot 连接任意 LLM 提供商，同时提供请求日志可视化与协议转换排查工具
 
-[![Version](https://img.shields.io/badge/version-0.5.3--rc4-blue)](./package.json)
+[![Version](https://img.shields.io/badge/version-0.0.5-blue)](./package.json)
 [![License](https://img.shields.io/badge/license-Commercial-green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/typescript-6.x-blue)](./tsconfig.json)
 
