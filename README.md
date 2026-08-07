@@ -25,15 +25,15 @@ vv-switch 是一个轻量级 API 代理，运行在本地（默认http://localho
 ```bash
 
 # 不带日志启动 (推荐)
-npx vv-switch
+npx @bysking/vv-switch
 
 # 带日志启动服务（默认端口 4321），日志在当前目录 .vv-switch-logs，记得通过页面日志tab,及时删除日志，避免内存占用
-npx vv-switch --logs 
+npx @bysking/vv-switch --logs 
 
 
 
 # 开启协议转换链路日志（用于排查协议兼容问题, 最多保留最近5轮日志）
-npx vv-switch --protocol-log
+npx @bysking/vv-switch --protocol-log
 ```
 
 ### 本地开发
@@ -196,9 +196,9 @@ vv-switch 会自动检测上游 LLM 提供商的能力，并据此决定是否�
 面向**协议转换排查**的独立日志，与上面的会话日志（`--logs`）完全解耦。每次链路调用写入一个 jsonl 文件，记录请求从入口到上游的四个关键阶段，方便定位不同模型/供应商的协议转换问题。
 
 ```bash
-npx vv-switch --protocol-log              # 默认写入 ./log
-npx vv-switch --protocol-log --no-body    # 不记录请求体（只记摘要，精简体积）
-npx vv-switch --protocol-log-dir ~/logs   # 自定义目录
+npx @bysking/vv-switch --protocol-log              # 默认写入 ./log
+npx @bysking/vv-switch --protocol-log --no-body    # 不记录请求体（只记摘要，精简体积）
+npx @bysking/vv-switch --protocol-log-dir ~/logs   # 自定义目录
 ```
 
 每次链路生成 `log/<时间>-<caller>-<traceId>.jsonl`，每行一个阶段：
@@ -275,7 +275,7 @@ CodeBuddy 也通过 OpenAI 兼容端点接入，修改 `~/.codebuddy/settings.js
 ## CLI 选项
 
 ```
-npx vv-switch [options]
+npx @bysking/vv-switch [options]
 
 选项:
   -p, --port <port>       监听端口（默认 4321）
