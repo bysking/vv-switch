@@ -1,8 +1,8 @@
-# vv-switch
+# @bysking/vv-switch
 
 > LLM API 协议转换代理 —— 让 Claude Code、OpenAI Codex 和 VS Code Copilot 连接任意 LLM 提供商，同时提供请求日志可视化与协议转换排查工具
 
-[![Version](https://img.shields.io/badge/version-0.0.5-blue)](./package.json)
+[![Version](https://img.shields.io/badge/version-0.0.6-blue)](./package.json)
 [![License](https://img.shields.io/badge/license-Commercial-green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/typescript-6.x-blue)](./tsconfig.json)
 
@@ -16,7 +16,7 @@ vv-switch 是一个轻量级 API 代理，运行在本地（默认http://localho
 | **OpenAI Codex**                      | Responses API (`/v1/responses`)               | Chat Completions API 或原生 Responses API                     |
 | **OpenAI 端点**（如 VS Code Copilot） | Chat Completions API (`/v1/chat/completions`) | Chat Completions / Anthropic 兼容端点（按供应商协议自动转换） |
 
-通过协议转换，你可以使用 DeepSeek、阿里百炼（DashScope）、智谱等任何支持 Chat Completions、Anthropic 兼容接口或原生 Responses API 的提供商来驱动 Claude Code、Codex 和 VS Code Copilot 等客户端。
+通过协议转换，你可以使用 DeepSeek、阿里百炼（DashScope）、阿里百炼、硅基流动、智谱等任何支持 Chat Completions、Anthropic 兼容接口或原生 Responses API 的提供商来驱动 Claude Code、Codex 和 VS Code Copilot 等agent客户端。
 
 ## 快速开始
 
@@ -321,7 +321,7 @@ NPM 脚本:
 | 认证方式   | `Authorization: Bearer`               | `x-api-key`                        | `Authorization: Bearer`     | 无需 / 可选 Bearer    |
 | 请求转换   | Anthropic/Responses → Chat Completions | 直接透传                             | Responses API 直接透传        | Chat Completions 转换 |
 | 响应转换   | Chat Completions → Anthropic/Responses | 直接透传                             | Responses API 直接透传        | Chat Completions 转换 |
-| 适用提供商 | DashScope`/v1`、DeepSeek、OpenAI 等   | DashScope`/apps/anthropic`、智谱等 | 原生 Responses API 兼容提供商 | 本地 Ollama 服务      |
+| 适用提供商 | DashScope`/v1`、DeepSeek、OpenAI 等   | DashScope`/apps/anthropic`、智谱等 | 原生 Responses API 兼容提供商 | 本地 Ollama 服务(推荐配合claude使用)      |
 
 ## 实现原理
 

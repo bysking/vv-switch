@@ -147,8 +147,12 @@ export function buildOllamaRequest(request: StandardRequest, defaultModel?: stri
   }
 
   // 能力配置：thinking=false 时跳过 think 字段
-  if (caps.thinking && request.parameters.thinking) {
-    req.think = Boolean(request.parameters.thinking);
+  // 注意：thinking 可能是对象 { type: 'disabled' }，直接 Boolean() 会得到 true，
+  // 导致「显式关闭思考」被翻译成 think:true。必须按 type 判定。
+  if (caps.thinking && request.parameters.thinking != null) {
+    const t = request.parameters.thinking;
+    const enabled = typeof t === 'boolean' ? t : t.type !== 'disabled';
+    if (enabled) req.think = true;
   }
 
   return req;
